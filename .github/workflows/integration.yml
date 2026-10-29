@@ -1,0 +1,27 @@
+name: Offline calendar integration validation
+on:
+  push:
+    branches: [integration/feed-v1]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  integration:
+    if: github.event.repository.private == false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Collector and public synthetic integration regressions
+        run: |
+          python3 -m unittest discover -s tests -v
+          node --test tests/*.test.mjs
+          python3 tests/offline_workflow.py out/workflow-rehearsal
+      - name: Validate the site patch against its pinned source
+        run: python3 scripts/check-site-patch.py
+# No credentials, deployment, approval, data writes, scheduling or artifact upload.

@@ -1,0 +1,113 @@
+{
+  "schemaVersion": "sorttreks.calendar.v1",
+  "kind": "synthetic-not-official",
+  "revision": 2,
+  "issuedAt": "2026-10-29T15:00:00+00:00",
+  "validUntil": "2026-10-29T21:00:00+00:00",
+  "baselineDigest": "fa765bd71e25b2ed28ec9108f993cd2dd52824b64556f24e337e5a11c24b562a",
+  "events": [
+    {
+      "id": "2026-27-wt2",
+      "timeZone": "America/Toronto",
+      "startDate": "2026-10-30",
+      "endDate": "2026-11-01",
+      "approval": {
+        "reviewer": "SYNTHETIC PREVIEW - NOT A REAL APPROVAL",
+        "reviewedAt": "2026-10-29T15:00:00+00:00",
+        "reportSha256": "73275d24ca5d70e1d9028ffeec59412c1427656163c73d3b12f0cbfd84008912",
+        "authorityVersionId": "synthetic-v1",
+        "basis": "resolved-official-programme"
+      },
+      "sources": [
+        {
+          "url": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
+          "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+          "retrievedAt": "2026-10-29T15:00:00+00:00",
+          "revision": {
+            "scope": "schedule",
+            "sequence": 1
+          }
+        },
+        {
+          "url": "https://front-api.isu.org/events/get-event-result-round-heats-stk-single",
+          "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+          "retrievedAt": "2026-10-29T15:00:00+00:00",
+          "revision": {
+            "note": "synthetic test draw"
+          }
+        }
+      ],
+      "rounds": [
+        {
+          "gender": "men",
+          "distance": 500,
+          "round": "preliminaries",
+          "occurrence": 1,
+          "startsAt": "2026-10-30T09:20:00-04:00",
+          "sourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
+          "timeBasis": "round-start"
+        },
+        {
+          "gender": "men",
+          "distance": 500,
+          "round": "heats",
+          "occurrence": 1,
+          "startsAt": "2026-10-30T13:20:00-04:00",
+          "sourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
+          "timeBasis": "round-start"
+        },
+        {
+          "gender": "men",
+          "distance": 500,
+          "round": "quarterfinals",
+          "occurrence": 1,
+          "startsAt": "2026-10-31T13:00:00-04:00",
+          "sourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
+          "timeBasis": "round-start"
+        },
+        {
+          "gender": "men",
+          "distance": 1000,
+          "round": "finals",
+          "occurrence": 1,
+          "startsAt": "2026-11-01T13:00:00-05:00",
+          "sourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
+          "timeBasis": "round-start"
+        }
+      ],
+      "firstStarts": [
+        {
+          "athlete": "Reinis Bērziņš",
+          "gender": "men",
+          "distance": 500,
+          "round": "preliminaries",
+          "occurrence": 1,
+          "startsAt": "2026-10-30T09:20:00-04:00",
+          "sourceUrl": "https://front-api.isu.org/events/get-event-result-round-heats-stk-single",
+          "roundSourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
+          "timeBasis": "round-start",
+          "evidenceKind": "start-list",
+          "openingDayCoverageComplete": true
+        },
+        {
+          "athlete": "Roberts Krūzbergs",
+          "gender": "men",
+          "distance": 500,
+          "round": "heats",
+          "occurrence": 1,
+          "startsAt": "2026-10-30T13:20:00-04:00",
+          "sourceUrl": "https://front-api.isu.org/events/get-event-result-round-heats-stk-single",
+          "roundSourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
+          "timeBasis": "round-start",
+          "evidenceKind": "start-list",
+          "openingDayCoverageComplete": true
+        }
+      ],
+      "laterStarts": [],
+      "sessions": [],
+      "links": {
+        "infoUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/"
+      }
+    }
+  ]
+}

@@ -1,0 +1,1592 @@
+diff --git a/dist/assets/calendar.mjs b/dist/assets/calendar.mjs
+index 6057cee..e115582 100644
+--- a/dist/assets/calendar.mjs
++++ b/dist/assets/calendar.mjs
+@@ -66,18 +66,25 @@ const roundLabel=(round,lang)=>lang==='en'?({preliminaries:'Preliminaries',heats
+ // Calendar-only round presentation. The homepage still consumes event.sessions.
+ export function competitionProgrammeDays(event,lang='lv'){
+  const entries=new Map();
++ const labels={preliminaries:{lv:'Priekšsacīkstes',en:'Preliminaries'},heats:{lv:'Kvalifikācijas braucieni',en:'Heats'},quarterfinals:{lv:'Ceturtdaļfināli',en:'Quarterfinals'},semifinals:{lv:'Pusfināli',en:'Semifinals'},finals:{lv:'Fināli',en:'Finals'},'repechage-heats':{lv:'Papildkvalifikācijas braucieni',en:'Repechage heats'},'repechage-quarterfinals':{lv:'Papildkvalifikācijas ceturtdaļfināli',en:'Repechage quarterfinals'},'repechage-semifinals':{lv:'Papildkvalifikācijas pusfināli',en:'Repechage semifinals'}};
++ for(const row of event.verifiedProgramme||[]){
++  const gender=lang==='en'?(row.gender==='women'?'Women':'Men'):(row.gender==='women'?'Sievietes':'Vīrieši');
++  const label=gender+' · '+row.distance+' m · '+labels[row.round]?.[lang]+(row.occurrence>1?' ('+row.occurrence+')':'');
++  entries.set(row.startsAt+'|'+label,{...row,label,athletes:[]});
++ }
+  for(const start of athleteFirstStarts(event)){
+-  const label=start.distance+' m · '+roundLabel(start.round,lang),key=start.startsAt+'|'+label;
++  const matched=[...entries.entries()].find(([,r])=>r.gender===start.gender&&r.distance===start.distance&&r.round===start.round&&r.occurrence===(start.occurrence||1)&&r.startsAt===start.startsAt);
++  const label=matched?.[1].label||start.distance+' m · '+roundLabel(start.round,lang),key=matched?.[0]||start.startsAt+'|'+label;
+   if(!entries.has(key))entries.set(key,{...start,label,athletes:[]});
+   const athletes=entries.get(key).athletes;if(!athletes.includes(start.athlete))athletes.push(start.athlete);
+  }
+- for(const day of laterRoundDays(event,lang))for(const row of day.sessions){const key=row.startsAt+'|'+row.label;if(!entries.has(key))entries.set(key,{...row,athletes:[],sourceUrl:event.scheduleUrl||event.infoUrl})}
++ for(const day of (event.verifiedProgramme?[]:laterRoundDays(event,lang)))for(const row of day.sessions){const key=row.startsAt+'|'+row.label;if(!entries.has(key))entries.set(key,{...row,athletes:[],sourceUrl:event.scheduleUrl||event.infoUrl})}
+  // Attach names only to already scheduled rounds with event-specific evidence.
+  for(const start of event.athleteRoundStarts||[]){
+   if(start.confirmed!==true||!start.athlete||!safeLink(start.sourceUrl)||!start.verifiedAt||!inVenueZone(start.startsAt,event.timeZone))continue;
+   const round=(event.conditionalRounds||[]).find(row=>row.confirmed===true&&row.distance===start.distance&&row.round===start.round&&row.startsAt===start.startsAt);
+   if(!round)continue;
+-  const label=start.distance+' m · '+t(laterRoundLabels[start.round],lang),entry=entries.get(start.startsAt+'|'+label);
++  const label=start.distance+' m · '+t(laterRoundLabels[start.round],lang),entry=event.verifiedProgramme?[...entries.values()].find(r=>r.gender===start.gender&&r.distance===start.distance&&r.round===start.round&&r.occurrence===(start.occurrence||1)&&r.startsAt===start.startsAt):entries.get(start.startsAt+'|'+label);
+   if(entry&&!entry.athletes.includes(start.athlete))entry.athletes.push(start.athlete);
+  }
+  if(!entries.size)return [];
+@@ -146,7 +153,8 @@ export function mountCalendar(data){
+  function updateUrl(){if(!view?.history?.replaceState||!/^https?:$/.test(view.location.protocol))return;const url=new URL(view.location.href);if(level==='senior')url.searchParams.delete('filter');else url.searchParams.set('filter',level);url.searchParams.delete('season');view.history.replaceState(null,'',url.pathname+url.search+url.hash);document.querySelectorAll('[data-language]').forEach(link=>{link.href=link.getAttribute('href').split('?')[0].split('#')[0]+url.search+url.hash})}
+  function render(force=false){
+   const now=Date.now(),events=calendarEvents(data,level),next=events.find(event=>eventStatus(event,now)==='ongoing')||events.find(event=>eventStatus(event,now)==='upcoming');
+-  const state=level+'|'+events.map(event=>event.id+eventStatus(event,now)+(event.athleteFirstStarts?.length?partitionProgrammeDays(event,language(),now).past.length:'')).join('|');if(!force&&state===signature)return;
++  const state=JSON.stringify(data.events.map(e=>[e.verifiedProgramme,e.athleteFirstStarts,e.athleteRoundStarts,e.sessions]))+'|'+level+'|'+events.map(event=>event.id+eventStatus(event,now)+(event.athleteFirstStarts?.length?partitionProgrammeDays(event,language(),now).past.length:'')).join('|');if(!force&&state===signature)return;
++  const opened=new Set([...(list.querySelectorAll?.('details[open]')||[])].map(d=>(d.closest('[data-event-id]')?.dataset.eventId||'')+'|'+d.className));
+   const keepOpen=!force&&Boolean(list.querySelector?.('.calendar-past')?.open);signature=state;list.replaceChildren();sync();
+   if(count)count.textContent=events.length+(language()==='en'?' competitions':' sacensības');
+   if(!events.length){list.append(element('p','calendar-message','Šajā kategorijā sacensību vēl nav.'));return}
+@@ -154,6 +162,7 @@ export function mountCalendar(data){
+   if(!current.length)currentList.append(element('p','calendar-message','Šajā kategorijā gaidāmu sacensību vairs nav.'));
+   appendGroups(currentList,current);
+   if(past.length){const details=element('details','calendar-past');details.open=keepOpen;details.append(element('summary','',t('Aizvadītās sacensības')+' ('+past.length+')'));appendGroups(details,past,'past-');list.append(details)}
++  for(const d of list.querySelectorAll?.('details')||[])if(opened.has((d.closest('[data-event-id]')?.dataset.eventId||'')+'|'+d.className))d.open=true;
+   function appendGroups(target,events,prefix=''){for(const [month,rows] of groupEvents(events)){
+    const group=element('section','calendar-month');const heading=element('h2','',monthLabel(month));heading.id=prefix+'month-'+month;group.setAttribute('aria-labelledby',heading.id);group.append(heading);
+    for(const event of rows){
+@@ -172,6 +181,6 @@ export function mountCalendar(data){
+  for(const button of buttons)button.addEventListener('click',()=>{level=button.dataset.calendarFilter;render(true);updateUrl()});
+  view?.addEventListener?.('popstate',()=>{level=calendarFilter(view.location.search);render(true);openLinkedProgramme(document,view.location.hash,true)});
+  view?.addEventListener?.('hashchange',()=>openLinkedProgramme(document,view.location.hash,true));
+- document.addEventListener?.('visibilitychange',()=>render());view?.addEventListener?.('pageshow',()=>render());
++ view?.addEventListener?.('isu-feed-update',()=>render());document.addEventListener?.('visibilitychange',()=>render());view?.addEventListener?.('pageshow',()=>render());
+  render();updateUrl();openLinkedProgramme(document,view?.location?.hash,true);document.querySelector('.calendar-filters')?.removeAttribute('hidden');return setInterval(()=>render(),30000);
+ }
+diff --git a/dist/assets/isu-feed-client.mjs b/dist/assets/isu-feed-client.mjs
+new file mode 100644
+index 0000000..8d539c6
+--- /dev/null
++++ b/dist/assets/isu-feed-client.mjs
+@@ -0,0 +1,28 @@
++import {validateFeed,mergeFeed,noReduction,MAX_BYTES} from './isu-feed-contract.mjs';
++// Poll one feed per visible tab. No credentials, background automation or candidate URLs.
++export function createFeedClient({baseline,baselineDigest,url,enabled=false,allowSynthetic=false,fetcher=globalThis.fetch,storage=globalThis.localStorage,onUpdate=()=>{},onStatus=()=>{},now=()=>Date.now(),timeoutMs=5000}) {
++ let accepted=null,busy=false,etag=null,currentData=structuredClone(baseline); const key='sorttreks-approved-v1:'+url;
++ const options=()=>({baselineDigest,allowSynthetic,now:now()});
++ function commit(feed){validateFeed(feed,options());noReduction(accepted,feed);if(accepted&&(feed.revision<accepted.revision||feed.revision===accepted.revision&&JSON.stringify(feed)!==JSON.stringify(accepted)))throw Error('rollback or reused revision');const merged=mergeFeed(currentData,feed,options());currentData=merged;accepted=feed;onUpdate(merged);try{storage?.setItem(key,JSON.stringify(feed))}catch{}onStatus('current',feed.issuedAt);}
++ function fallback(){if(accepted&&Date.parse(accepted.validUntil)>now())onStatus('retained',accepted.issuedAt);else{accepted=null;etag=null;currentData=structuredClone(baseline);onUpdate(currentData);onStatus('fallback');}}
++ if(enabled){try {const saved=storage?.getItem(key);if(saved)commit(JSON.parse(saved))}catch{try{storage?.removeItem(key)}catch{}}}
++ async function refresh(){
++  if(!enabled||busy)return;busy=true;const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeoutMs);
++  try {
++   if(!allowSynthetic&&new URL(url).protocol!=='https:')throw Error('HTTPS required');
++   const res=await fetcher(url,{credentials:'omit',cache:'no-cache',signal:controller.signal,headers:etag?{'If-None-Match':etag}:{}});
++   if(res.status===304){if(!accepted)throw Error('304 without snapshot');validateFeed(accepted,options());onStatus('current',accepted.issuedAt);return;}
++   if(!res.ok||Number(res.headers.get('Content-Length')||0)>MAX_BYTES)throw Error('feed unavailable');
++   const reader=res.body.getReader(),chunks=[];let length=0;
++   while(true){const {done,value}=await reader.read();if(done)break;length+=value.length;if(length>MAX_BYTES){await reader.cancel();throw Error('oversized feed')}chunks.push(value);}
++   const bytes=new Uint8Array(length);let offset=0;for(const c of chunks){bytes.set(c,offset);offset+=c.length;}
++   commit(JSON.parse(new TextDecoder().decode(bytes)));etag=res.headers.get('ETag');
++  }catch{fallback()}finally{clearTimeout(timer);busy=false;}
++ }
++ return {refresh,expire:fallback,get current(){return accepted}};
++}
++export function startFeedRefresh(client,{view=window,root=document,intervalMs=300000}={}) {
++ const refresh=()=>{client.expire();if(!root.hidden)void client.refresh()};
++ const timer=view.setInterval(refresh,intervalMs);root.addEventListener('visibilitychange',refresh);view.addEventListener('pageshow',refresh);view.addEventListener('online',refresh);refresh();
++ return()=>{view.clearInterval(timer);root.removeEventListener('visibilitychange',refresh);view.removeEventListener('pageshow',refresh);view.removeEventListener('online',refresh)};
++}
+diff --git a/dist/assets/isu-feed-config.mjs b/dist/assets/isu-feed-config.mjs
+new file mode 100644
+index 0000000..2dc6da4
+--- /dev/null
++++ b/dist/assets/isu-feed-config.mjs
+@@ -0,0 +1,6 @@
++// Production stays disabled until a separate reviewed activation.
++export default {
++  "enabled": false,
++  "url": "",
++  "baselineDigest": "fa765bd71e25b2ed28ec9108f993cd2dd52824b64556f24e337e5a11c24b562a"
++};
+diff --git a/dist/assets/isu-feed-connect.mjs b/dist/assets/isu-feed-connect.mjs
+new file mode 100644
+index 0000000..4fc0439
+--- /dev/null
++++ b/dist/assets/isu-feed-connect.mjs
+@@ -0,0 +1,13 @@
++import config from './isu-feed-config.mjs';
++import {createFeedClient,startFeedRefresh} from './isu-feed-client.mjs';
++export function connectIsuFeed(data){
++ if(!config.enabled)return; // No production network calls before explicit activation.
++ const baseline=structuredClone(data);
++ const client=createFeedClient({...config,baseline,onUpdate:next=>{data.events=next.events;window.dispatchEvent(new CustomEvent('isu-feed-update',{detail:next}));},onStatus:(status,at)=>{
++  const list=document.querySelector('#race-event-list');if(!list)return;
++  let note=document.querySelector('[data-isu-feed-status]');if(!note){note=document.createElement('p');note.className='calendar-footnote';note.dataset.isuFeedStatus='';note.setAttribute('role','status');list.before(note);}
++  const en=document.documentElement.lang==='en';
++  note.textContent=status==='current'?(en?'ISU schedule updated: ':'ISU programma atjaunota: ')+new Intl.DateTimeFormat(en?'en-GB':'lv-LV',{timeZone:'Europe/Riga',dateStyle:'short',timeStyle:'short'}).format(new Date(at)):(en?'Showing the last verified schedule.':'Rādīta pēdējā pārbaudītā programma.');
++ }});
++ return startFeedRefresh(client);
++}
+diff --git a/dist/assets/isu-feed-contract.mjs b/dist/assets/isu-feed-contract.mjs
+new file mode 100644
+index 0000000..66c5cea
+--- /dev/null
++++ b/dist/assets/isu-feed-contract.mjs
+@@ -0,0 +1,105 @@
++// Shared Worker/browser contract. No HTML, executable markup or arbitrary event patches.
++export const SCHEMA = 'sorttreks.calendar.v1';
++export const MAX_BYTES = 262144;
++export const MAX_AGE = 6 * 3600000;
++const rounds = new Set(['preliminaries','heats','quarterfinals','semifinals','finals','repechage-heats','repechage-quarterfinals','repechage-semifinals']);
++const hosts = new Set(['www.isu-skating.com','isu-skating.com','front-api.isu.org','www.isu.org','isu.org','isu-d8g8b4b7ece7aphs.a03.azurefd.net']);
++export const instant = s => typeof s === 'string' && /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:Z|[+-]\d\d:\d\d)$/.test(s) ? Date.parse(s) : NaN;
++function require(ok, why) { if (!ok) throw Error(why); }
++function keys(o, allowed) { require(o && typeof o === 'object' && !Array.isArray(o) && Object.keys(o).every(k=>allowed.includes(k)), 'unknown field'); }
++export function official(s) { try { const u=new URL(s); return u.protocol==='https:' && !u.username && !u.password && hosts.has(u.hostname); } catch { return false; } }
++const formatters=new Map();
++function formatter(zone){if(!formatters.has(zone))formatters.set(zone,new Intl.DateTimeFormat('en-CA',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}));return formatters.get(zone);}
++export function localDate(s, zone) { const p=formatter(zone).formatToParts(new Date(s)); return ['year','month','day'].map(k=>p.find(x=>x.type===k).value).join('-'); }
++export function venueTime(s, zone) { const p=formatter(zone).formatToParts(new Date(s)); const g=k=>p.find(x=>x.type===k).value; const wall=`${g('year')}-${g('month')}-${g('day')}T${g('hour')}:${g('minute')}:${g('second')}`; const delta=(Date.parse(wall+'Z')-Date.parse(s))/60000; const a=Math.abs(delta); return wall+(delta<0?'-':'+')+String(Math.floor(a/60)).padStart(2,'0')+':'+String(a%60).padStart(2,'0'); }
++export function roundKey(r, zone) { return [localDate(r.startsAt,zone),r.gender,r.distance,r.round,r.occurrence].join('|'); }
++export function validateFeed(f, {now=Date.now(), allowSynthetic=false, baselineDigest}={}) {
++ keys(f,['schemaVersion','kind','revision','issuedAt','validUntil','baselineDigest','events']);
++ require(f.schemaVersion===SCHEMA && (f.kind==='approved' || allowSynthetic && f.kind==='synthetic-not-official'),'unapproved feed');
++ require(Number.isSafeInteger(f.revision)&&f.revision>0,'invalid revision');
++ const issued=instant(f.issuedAt),until=instant(f.validUntil);
++ require(issued<=now+60000 && until>now && until>issued && until-issued<=MAX_AGE,'expired or invalid lifetime');
++ require(/^[a-f0-9]{64}$/.test(f.baselineDigest) && (!baselineDigest || baselineDigest===f.baselineDigest),'baseline mismatch');
++ require(Array.isArray(f.events)&&f.events.length>0&&f.events.length<=32,'empty/oversized feed');
++ require(new TextEncoder().encode(JSON.stringify(f)).length<=MAX_BYTES,'oversized feed');
++ const ids=new Set();
++ for(const e of f.events) {
++  keys(e,['id','timeZone','startDate','endDate','approval','sources','rounds','firstStarts','laterStarts','sessions','links']);
++  require(/^[a-z0-9-]+$/.test(e.id)&&!ids.has(e.id),'event id'); ids.add(e.id);
++  require(/^\d{4}-\d\d-\d\d$/.test(e.startDate)&&e.endDate>=e.startDate,'event dates');
++  localDate(f.issuedAt,e.timeZone);
++  keys(e.approval,['reviewer','reviewedAt','reportSha256','authorityVersionId','basis']);
++  require(typeof e.approval.reviewer==='string'&&e.approval.reviewer.trim()&&instant(e.approval.reviewedAt)<=issued&&/^[a-f0-9]{64}$/.test(e.approval.reportSha256),'approval evidence');
++  require(['resolved-official-programme','verified-website-baseline'].includes(e.approval.basis)&&e.approval.authorityVersionId,'authority evidence');
++  require(Array.isArray(e.sources)&&e.sources.length>0&&e.sources.length<=64,'sources');
++  const sources=new Set();
++  for(const s of e.sources) { keys(s,['url','sha256','retrievedAt','revision']); require(official(s.url)&&/^[a-f0-9]{64}$/.test(s.sha256)&&instant(s.retrievedAt)<=issued&&s.revision&&typeof s.revision==='object','source evidence'); sources.add(s.url); }
++  const stamp=r=>{require(Number.isFinite(instant(r.startsAt))&&sources.has(r.sourceUrl),'time/source');const date=localDate(r.startsAt,e.timeZone);require(date>=e.startDate&&date<=e.endDate,'outside event');};
++  require(Array.isArray(e.rounds)&&e.rounds.length>0&&e.rounds.length<=500,'empty/incomplete programme');
++  const known=new Map();
++  for(const r of e.rounds) { keys(r,['gender','distance','round','occurrence','startsAt','sourceUrl','timeBasis']); stamp(r); require(['men','women'].includes(r.gender)&&[500,1000,1500].includes(r.distance)&&rounds.has(r.round)&&Number.isSafeInteger(r.occurrence)&&r.occurrence>0&&r.timeBasis==='round-start','round identity'); const k=roundKey(r,e.timeZone); require(!known.has(k),'duplicate round'); known.set(k,r); }
++  for(const field of ['firstStarts','laterStarts']) {
++   require(Array.isArray(e[field])&&e[field].length<=256,'draws'); const seen=new Set();
++   for(const a of e[field]) { keys(a,['athlete','gender','distance','round','occurrence','startsAt','sourceUrl','roundSourceUrl','timeBasis','evidenceKind','openingDayCoverageComplete']); stamp(a); const r=known.get(roundKey(a,e.timeZone)); require(r&&instant(r.startsAt)===instant(a.startsAt)&&a.roundSourceUrl===r.sourceUrl&&a.timeBasis==='round-start'&&a.evidenceKind==='start-list'&&typeof a.athlete==='string'&&a.athlete.length>0&&a.athlete.length<=100,'unconfirmed assignment'); const k=a.athlete+'|'+(field==='firstStarts'?[a.gender,a.distance,a.occurrence].join('|'):roundKey(a,e.timeZone)); require(!seen.has(k),'duplicate athlete'); seen.add(k); if(field==='firstStarts')require(a.openingDayCoverageComplete===true&&localDate(a.startsAt,e.timeZone)===e.startDate,'first start coverage'); }
++  }
++  require(Array.isArray(e.sessions)&&e.sessions.length<=32,'sessions'); const sessionIds=new Set();
++  for(const s of e.sessions) { keys(s,['id','label','startsAt','endsAt','sourceUrl','timeBasis']); stamp(s); require(/^[a-z0-9-]+$/.test(s.id)&&!sessionIds.has(s.id)&&s.timeBasis==='session-start'&&typeof s.label?.lv==='string'&&typeof s.label?.en==='string','session evidence'); sessionIds.add(s.id); if(s.endsAt!==null)require(instant(s.endsAt)>instant(s.startsAt)&&localDate(s.endsAt,e.timeZone)<=e.endDate,'session end'); }
++  keys(e.links,['infoUrl','scheduleUrl','resultsUrl','entriesUrl','startListsUrl']); for(const u of Object.values(e.links))require(official(u),'official link');
++ }
++ return f;
++}
++
++// Overlay known events only; absence never deletes bundled or previously accepted rows.
++export function mergeFeed(baseline, f, options={}) {
++ validateFeed(f,options); const data=structuredClone(baseline);
++ for(const e of f.events) {
++  const event=data.events.find(x=>x.id===e.id);
++  require(event&&event.timeZone===e.timeZone&&event.startDate===e.startDate&&event.endDate===e.endDate,'unknown/mismatched event');
++  const time=r=>venueTime(r.startsAt,e.timeZone), date=r=>localDate(r.startsAt,e.timeZone);
++  const match=(old,r)=>old.distance===r.distance&&old.round===r.round&&(old.occurrence||1)===r.occurrence&&date(old)===date(r)&&(!old.gender||old.gender===r.gender);
++  for(const field of ['athleteFirstStarts','athleteRoundStarts']) for(const old of event[field]||[]) {
++   const matches=e.rounds.filter(r=>match(old,r)); require(matches.length<=1,'ambiguous legacy athlete round'); if(matches.length){old.startsAt=time(matches[0]);old.scheduleSourceUrl=matches[0].sourceUrl;}
++  }
++  const conditional=event.conditionalRounds||[];
++  for(const old of [...conditional,...(event.athleteFirstStarts||[]),...(event.athleteRoundStarts||[])])require(e.rounds.some(r=>match(old,r)),'programme reduction would hide verified rows');
++  for(const r of e.rounds.filter(r=>date(r)>event.startDate)) {
++   const matches=conditional.filter(old=>match(old,r)); require(matches.length<=1,'ambiguous legacy round');
++   const row={...r,startsAt:time(r),confirmed:true,verifiedAt:e.approval.reviewedAt};
++   if(matches.length)Object.assign(matches[0],row);else conditional.push(row);
++  }
++  event.conditionalRounds=conditional;
++  // Full round inventory also includes opening-day rounds without implying LAT participation.
++  const inventory=new Map((event.verifiedProgramme||[]).map(r=>[roundKey(r,e.timeZone),r]));for(const r of e.rounds)inventory.set(roundKey(r,e.timeZone),{...r,startsAt:time(r),confirmed:true});event.verifiedProgramme=[...inventory.values()];
++  for(const [field,source] of [['athleteFirstStarts','firstStarts'],['athleteRoundStarts','laterStarts']]) {
++   const rows=event[field]||[];
++   for(const a of e[source]) {const old=rows.find(x=>x.athlete===a.athlete&&match(x,a));const row={...a,startsAt:time(a),confirmed:true,verifiedAt:e.approval.reviewedAt};if(old)Object.assign(old,row);else rows.push(row);} event[field]=rows;
++  }
++  const sessions=event.sessions||[];
++  for(const s of e.sessions) {
++   const old=sessions.find(x=>x.id===s.id);
++   const row={...s,label:s.label.lv,labelTranslations:s.label,startsAt:time(s),startVerified:true,verifiedAt:e.approval.reviewedAt};
++   if(s.endsAt){row.endsAt=venueTime(s.endsAt,e.timeZone);row.endVerified=true;row.endSourceUrl=s.sourceUrl;}
++   // Existing owner estimates stay estimates; a new start cannot extend them or create overlap.
++   if(old){if(!s.endsAt){row.endsAt=old.endsAt||null;row.endVerified=old.endVerified===true;}Object.assign(old,row);}else sessions.push({...row,endVerified:Boolean(s.endsAt)});
++  }
++  sessions.sort((a,b)=>instant(a.startsAt)-instant(b.startsAt));
++  for(let i=0;i<sessions.length;i++) {const s=sessions[i],end=s.endVerified?s.endsAt:s.estimatedEndsAt;if(end)require(instant(end)>instant(s.startsAt)&&(!sessions[i+1]||instant(end)<=instant(sessions[i+1].startsAt)),'invalid/overlapping homepage window');}
++  if(e.sessions.length){event.sessions=sessions;if(localDate(sessions[0].startsAt,e.timeZone)===event.startDate){event.startsAt=sessions[0].startsAt;event.startPrecision='time';}}
++  if(e.firstStarts.length||e.laterStarts.length){event.latvianParticipationConfirmed=true;event.latvianEntries=[...new Set([...(event.latvianEntries||[]),...e.firstStarts.map(a=>a.athlete),...e.laterStarts.map(a=>a.athlete)])];}
++  Object.assign(event,e.links);
++  event.feedUpdatedAt=f.issuedAt;
++ }
++ return data;
++}
++
++// An accepted feed is cumulative across reloads, not an incremental patch.
++export function noReduction(previous,next){
++ if(!previous)return;
++ for(const old of previous.events){
++  const current=next.events.find(e=>e.id===old.id);require(current,'event reduction');
++  const keys=rows=>new Set(rows.map(r=>roundKey(r,old.timeZone)));
++  const rounds=keys(current.rounds);for(const k of keys(old.rounds))require(rounds.has(k),'round reduction');
++  for(const field of ['firstStarts','laterStarts'])for(const a of old[field])require(current[field].some(r=>r.athlete===a.athlete&&roundKey(r,old.timeZone)===roundKey(a,old.timeZone)),'draw reduction');
++  for(const s of old.sessions)require(current.sessions.some(r=>r.id===s.id),'session reduction');
++ }
++}
+diff --git a/dist/assets/programme-notice.mjs b/dist/assets/programme-notice.mjs
+index a4cf2c3..6a8c63f 100644
+--- a/dist/assets/programme-notice.mjs
++++ b/dist/assets/programme-notice.mjs
+@@ -7,5 +7,6 @@ export function noticeTarget(events,now=Date.now()){
+ }
+ const notice=globalThis.document?.querySelector('[data-programme-notice]');
+ if(notice){fetch(new URL('./races.json',import.meta.url)).then(r=>{if(!r.ok)throw new Error('Programme unavailable');return r.json()}).then(data=>{
++ window.addEventListener('isu-feed-update',event=>{data.events=event.detail.events;update()});
+  const update=()=>{const href=noticeTarget(data.events);notice.hidden=!href;if(href)notice.querySelector('a').href=href};update();setInterval(update,30000);document.addEventListener('visibilitychange',update);
+ }).catch(()=>{/* Retain the indexable calendar link if the data request fails. */})}
+diff --git a/dist/assets/race-sessions.mjs b/dist/assets/race-sessions.mjs
+index c917186..8c859ac 100644
+--- a/dist/assets/race-sessions.mjs
++++ b/dist/assets/race-sessions.mjs
+@@ -28,7 +28,7 @@ export function sessionTime(value,timeZone='Europe/Riga',lang='lv'){
+  return new Intl.DateTimeFormat('lv-LV',{timeZone,day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(value));
+ }
+ export function sessionRows(event,lang='lv'){return scheduledSessions(event).map(session=>({
+- label:t(session.label||'Sacensību sesija',lang),startsAt:session.startsAt,
++ label:session.labelTranslations?.[lang]||t(session.label||'Sacensību sesija',lang),startsAt:session.startsAt,
+  viewingTime:sessionTime(session.startsAt,'Europe/Riga',lang),venueTime:sessionTime(session.startsAt,event.timeZone,lang)
+ }));}
+ 
+diff --git a/dist/assets/site.js b/dist/assets/site.js
+index 7a4daf4..2d64246 100644
+--- a/dist/assets/site.js
++++ b/dist/assets/site.js
+@@ -1,3 +1,4 @@
++import {connectIsuFeed} from './isu-feed-connect.mjs';
+ import {t,language,mountLanguage} from './i18n.mjs';
+ import {mountTrainingVideo} from './training-video.mjs';
+ import {mountCalendar,showCalendarFallback} from './calendar.mjs';
+@@ -38,7 +39,7 @@ hero.addEventListener('touchcancel',()=>{touchStart=null},{passive:true});update
+ const gearItems=[{"name": "Slidas", "question": "Kāpēc tik gari asmeņi?", "text": "Šorttreka slidām ir gari asmeņi, kas novietoti ar nobīdi pa kreisi. Tas ļauj sportistam līkumā noliekties zemāk, zābakam neskarot ledu. Asmeņu sagatavošanu un novietojumu pielāgo slidotājam.", "x": 9, "y": 52}, {"name": "Cimdi", "question": "Kāpēc pirksti slīd pa ledu?", "text": "Līkumos slidotāji ar roku pieskaras ledum, lai saglabātu līdzsvaru. Kreisā cimda cietie pirkstu uzgaļi palīdz rokai slīdēt. Sacensībās lieto pret iegriezumiem izturīgus cimdus.", "x": 63, "y": 45}, {"name": "Ķivere", "question": "Kam vajadzīga ķivere?", "text": "Ķivere palīdz aizsargāt galvu kritiena vai sadursmes laikā. Tā ir būtiska šorttreka ekipējuma daļa gan treniņos, gan sacensībās.", "x": 32, "y": 18}, {"name": "Kombinezons", "question": "Vairāk nekā komandas krāsas.", "text": "Sacensību apģērbs pieguļ ķermenim un ietver aizsardzību pret asmeņu radītiem iegriezumiem. Ekipējumu papildina arī citi aizsargi. Piemērotu komplektu palīdz izvēlēties treneris.", "x": 28, "y": 32}];document.querySelectorAll('[data-gear]').forEach(button=>button.addEventListener('click',()=>{const index=Number(button.dataset.gear);document.querySelectorAll('[data-gear]').forEach(item=>{const chosen=Number(item.dataset.gear)===index;item.setAttribute('aria-pressed',String(chosen));item.classList.toggle('selected',chosen)});const panel=document.querySelector('#gear-detail');panel.querySelector('h3').textContent=t(gearItems[index].question);panel.querySelector('p').textContent=t(gearItems[index].text)}));
+ 
+ const racePanels=[...document.querySelectorAll('.next-race')];
+-if(racePanels.length||document.querySelector('#race-event-list')){fetch(new URL('./races.json',import.meta.url)).then(response=>{if(!response.ok)throw new Error('Race data unavailable');return response.json()}).then(data=>{mountCalendar(data);mountRacePanels(data,racePanels)}).catch(()=>{showCalendarFallback();racePanels.forEach(panel=>{panel.hidden=false;panel.querySelector('[data-race-level]').textContent=t('STARPTAUTISKĀS SACENSĪBAS');panel.querySelector('[data-race-title]').textContent=t('Sacensību kalendārs');panel.querySelector('[data-race-state]').textContent=t('Sacensību dati šobrīd nav pieejami.');panel.querySelector('.race-count-group').hidden=true;panel.querySelector('[data-race-watch]').hidden=true});document.querySelector('.hero')?.classList.add('has-race')})}
++if(racePanels.length||document.querySelector('#race-event-list')){fetch(new URL('./races.json',import.meta.url)).then(response=>{if(!response.ok)throw new Error('Race data unavailable');return response.json()}).then(data=>{mountCalendar(data);mountRacePanels(data,racePanels);connectIsuFeed(data)}).catch(()=>{showCalendarFallback();racePanels.forEach(panel=>{panel.hidden=false;panel.querySelector('[data-race-level]').textContent=t('STARPTAUTISKĀS SACENSĪBAS');panel.querySelector('[data-race-title]').textContent=t('Sacensību kalendārs');panel.querySelector('[data-race-state]').textContent=t('Sacensību dati šobrīd nav pieejami.');panel.querySelector('.race-count-group').hidden=true;panel.querySelector('[data-race-watch]').hidden=true});document.querySelector('.hero')?.classList.add('has-race')})}
+ 
+ function openLinkedDetails(){if(!location.hash)return;let id;try{id=decodeURIComponent(location.hash.slice(1))}catch{return}const target=document.getElementById(id);if(target?.tagName==='DETAILS')target.open=true}openLinkedDetails();window.addEventListener('hashchange',openLinkedDetails);
+ 
+diff --git a/dist/preview/fixtures/conflict.json b/dist/preview/fixtures/conflict.json
+new file mode 100644
+index 0000000..b442250
+--- /dev/null
++++ b/dist/preview/fixtures/conflict.json
+@@ -0,0 +1,122 @@
++{
++  "schemaVersion": "sorttreks.calendar.v1",
++  "kind": "synthetic-not-official",
++  "revision": 3,
++  "issuedAt": "2026-10-29T15:00:00+00:00",
++  "validUntil": "2026-10-29T21:00:00+00:00",
++  "baselineDigest": "fa765bd71e25b2ed28ec9108f993cd2dd52824b64556f24e337e5a11c24b562a",
++  "events": [
++    {
++      "id": "2026-27-wt2",
++      "timeZone": "America/Toronto",
++      "startDate": "2026-10-30",
++      "endDate": "2026-11-01",
++      "approval": {
++        "reviewer": "SYNTHETIC PREVIEW - NOT A REAL APPROVAL",
++        "reviewedAt": "2026-10-29T15:00:00+00:00",
++        "reportSha256": "4d7bc8b089171e6ee8c9bc204fcbeb0783a4ff512fc13791812a8c218f5dc08f",
++        "authorityVersionId": "synthetic-v2",
++        "basis": "unresolved-source-conflict"
++      },
++      "sources": [
++        {
++          "url": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
++          "retrievedAt": "2026-10-29T15:00:00+00:00",
++          "revision": {
++            "scope": "schedule",
++            "sequence": 2
++          }
++        },
++        {
++          "url": "https://front-api.isu.org/events/get-event-result-round-heats-stk-single",
++          "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
++          "retrievedAt": "2026-10-29T15:00:00+00:00",
++          "revision": {
++            "note": "synthetic test draw"
++          }
++        },
++        {
++          "url": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
++          "retrievedAt": "2026-10-29T15:00:00+00:00",
++          "revision": {
++            "scope": "schedule",
++            "sequence": 1
++          }
++        }
++      ],
++      "rounds": [
++        {
++          "gender": "men",
++          "distance": 500,
++          "round": "preliminaries",
++          "occurrence": 1,
++          "startsAt": "2026-10-30T09:20:00-04:00",
++          "sourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start"
++        },
++        {
++          "gender": "men",
++          "distance": 500,
++          "round": "heats",
++          "occurrence": 1,
++          "startsAt": "2026-10-30T13:35:00-04:00",
++          "sourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start"
++        },
++        {
++          "gender": "men",
++          "distance": 500,
++          "round": "quarterfinals",
++          "occurrence": 1,
++          "startsAt": "2026-10-31T13:00:00-04:00",
++          "sourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start"
++        },
++        {
++          "gender": "men",
++          "distance": 1000,
++          "round": "finals",
++          "occurrence": 1,
++          "startsAt": "2026-11-01T13:00:00-05:00",
++          "sourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start"
++        }
++      ],
++      "firstStarts": [
++        {
++          "athlete": "Reinis Bērziņš",
++          "gender": "men",
++          "distance": 500,
++          "round": "preliminaries",
++          "occurrence": 1,
++          "startsAt": "2026-10-30T09:20:00-04:00",
++          "sourceUrl": "https://front-api.isu.org/events/get-event-result-round-heats-stk-single",
++          "roundSourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start",
++          "evidenceKind": "start-list",
++          "openingDayCoverageComplete": true
++        },
++        {
++          "athlete": "Roberts Krūzbergs",
++          "gender": "men",
++          "distance": 500,
++          "round": "heats",
++          "occurrence": 1,
++          "startsAt": "2026-10-30T13:35:00-04:00",
++          "sourceUrl": "https://front-api.isu.org/events/get-event-result-round-heats-stk-single",
++          "roundSourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start",
++          "evidenceKind": "start-list",
++          "openingDayCoverageComplete": true
++        }
++      ],
++      "laterStarts": [],
++      "sessions": [],
++      "links": {
++        "infoUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/"
++      }
++    }
++  ]
++}
+diff --git a/dist/preview/fixtures/draws.json b/dist/preview/fixtures/draws.json
+new file mode 100644
+index 0000000..36427b1
+--- /dev/null
++++ b/dist/preview/fixtures/draws.json
+@@ -0,0 +1,113 @@
++{
++  "schemaVersion": "sorttreks.calendar.v1",
++  "kind": "synthetic-not-official",
++  "revision": 2,
++  "issuedAt": "2026-10-29T15:00:00+00:00",
++  "validUntil": "2026-10-29T21:00:00+00:00",
++  "baselineDigest": "fa765bd71e25b2ed28ec9108f993cd2dd52824b64556f24e337e5a11c24b562a",
++  "events": [
++    {
++      "id": "2026-27-wt2",
++      "timeZone": "America/Toronto",
++      "startDate": "2026-10-30",
++      "endDate": "2026-11-01",
++      "approval": {
++        "reviewer": "SYNTHETIC PREVIEW - NOT A REAL APPROVAL",
++        "reviewedAt": "2026-10-29T15:00:00+00:00",
++        "reportSha256": "73275d24ca5d70e1d9028ffeec59412c1427656163c73d3b12f0cbfd84008912",
++        "authorityVersionId": "synthetic-v1",
++        "basis": "resolved-official-programme"
++      },
++      "sources": [
++        {
++          "url": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
++          "retrievedAt": "2026-10-29T15:00:00+00:00",
++          "revision": {
++            "scope": "schedule",
++            "sequence": 1
++          }
++        },
++        {
++          "url": "https://front-api.isu.org/events/get-event-result-round-heats-stk-single",
++          "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
++          "retrievedAt": "2026-10-29T15:00:00+00:00",
++          "revision": {
++            "note": "synthetic test draw"
++          }
++        }
++      ],
++      "rounds": [
++        {
++          "gender": "men",
++          "distance": 500,
++          "round": "preliminaries",
++          "occurrence": 1,
++          "startsAt": "2026-10-30T09:20:00-04:00",
++          "sourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start"
++        },
++        {
++          "gender": "men",
++          "distance": 500,
++          "round": "heats",
++          "occurrence": 1,
++          "startsAt": "2026-10-30T13:20:00-04:00",
++          "sourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start"
++        },
++        {
++          "gender": "men",
++          "distance": 500,
++          "round": "quarterfinals",
++          "occurrence": 1,
++          "startsAt": "2026-10-31T13:00:00-04:00",
++          "sourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start"
++        },
++        {
++          "gender": "men",
++          "distance": 1000,
++          "round": "finals",
++          "occurrence": 1,
++          "startsAt": "2026-11-01T13:00:00-05:00",
++          "sourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start"
++        }
++      ],
++      "firstStarts": [
++        {
++          "athlete": "Reinis Bērziņš",
++          "gender": "men",
++          "distance": 500,
++          "round": "preliminaries",
++          "occurrence": 1,
++          "startsAt": "2026-10-30T09:20:00-04:00",
++          "sourceUrl": "https://front-api.isu.org/events/get-event-result-round-heats-stk-single",
++          "roundSourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start",
++          "evidenceKind": "start-list",
++          "openingDayCoverageComplete": true
++        },
++        {
++          "athlete": "Roberts Krūzbergs",
++          "gender": "men",
++          "distance": 500,
++          "round": "heats",
++          "occurrence": 1,
++          "startsAt": "2026-10-30T13:20:00-04:00",
++          "sourceUrl": "https://front-api.isu.org/events/get-event-result-round-heats-stk-single",
++          "roundSourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start",
++          "evidenceKind": "start-list",
++          "openingDayCoverageComplete": true
++        }
++      ],
++      "laterStarts": [],
++      "sessions": [],
++      "links": {
++        "infoUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/"
++      }
++    }
++  ]
++}
+diff --git a/dist/preview/fixtures/revised.json b/dist/preview/fixtures/revised.json
+new file mode 100644
+index 0000000..00defaf
+--- /dev/null
++++ b/dist/preview/fixtures/revised.json
+@@ -0,0 +1,122 @@
++{
++  "schemaVersion": "sorttreks.calendar.v1",
++  "kind": "synthetic-not-official",
++  "revision": 3,
++  "issuedAt": "2026-10-29T15:00:00+00:00",
++  "validUntil": "2026-10-29T21:00:00+00:00",
++  "baselineDigest": "fa765bd71e25b2ed28ec9108f993cd2dd52824b64556f24e337e5a11c24b562a",
++  "events": [
++    {
++      "id": "2026-27-wt2",
++      "timeZone": "America/Toronto",
++      "startDate": "2026-10-30",
++      "endDate": "2026-11-01",
++      "approval": {
++        "reviewer": "SYNTHETIC PREVIEW - NOT A REAL APPROVAL",
++        "reviewedAt": "2026-10-29T15:00:00+00:00",
++        "reportSha256": "4d7bc8b089171e6ee8c9bc204fcbeb0783a4ff512fc13791812a8c218f5dc08f",
++        "authorityVersionId": "synthetic-v2",
++        "basis": "resolved-official-programme"
++      },
++      "sources": [
++        {
++          "url": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
++          "retrievedAt": "2026-10-29T15:00:00+00:00",
++          "revision": {
++            "scope": "schedule",
++            "sequence": 2
++          }
++        },
++        {
++          "url": "https://front-api.isu.org/events/get-event-result-round-heats-stk-single",
++          "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
++          "retrievedAt": "2026-10-29T15:00:00+00:00",
++          "revision": {
++            "note": "synthetic test draw"
++          }
++        },
++        {
++          "url": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
++          "retrievedAt": "2026-10-29T15:00:00+00:00",
++          "revision": {
++            "scope": "schedule",
++            "sequence": 1
++          }
++        }
++      ],
++      "rounds": [
++        {
++          "gender": "men",
++          "distance": 500,
++          "round": "preliminaries",
++          "occurrence": 1,
++          "startsAt": "2026-10-30T09:20:00-04:00",
++          "sourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start"
++        },
++        {
++          "gender": "men",
++          "distance": 500,
++          "round": "heats",
++          "occurrence": 1,
++          "startsAt": "2026-10-30T13:35:00-04:00",
++          "sourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start"
++        },
++        {
++          "gender": "men",
++          "distance": 500,
++          "round": "quarterfinals",
++          "occurrence": 1,
++          "startsAt": "2026-10-31T13:00:00-04:00",
++          "sourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start"
++        },
++        {
++          "gender": "men",
++          "distance": 1000,
++          "round": "finals",
++          "occurrence": 1,
++          "startsAt": "2026-11-01T13:00:00-05:00",
++          "sourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start"
++        }
++      ],
++      "firstStarts": [
++        {
++          "athlete": "Reinis Bērziņš",
++          "gender": "men",
++          "distance": 500,
++          "round": "preliminaries",
++          "occurrence": 1,
++          "startsAt": "2026-10-30T09:20:00-04:00",
++          "sourceUrl": "https://front-api.isu.org/events/get-event-result-round-heats-stk-single",
++          "roundSourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start",
++          "evidenceKind": "start-list",
++          "openingDayCoverageComplete": true
++        },
++        {
++          "athlete": "Roberts Krūzbergs",
++          "gender": "men",
++          "distance": 500,
++          "round": "heats",
++          "occurrence": 1,
++          "startsAt": "2026-10-30T13:35:00-04:00",
++          "sourceUrl": "https://front-api.isu.org/events/get-event-result-round-heats-stk-single",
++          "roundSourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start",
++          "evidenceKind": "start-list",
++          "openingDayCoverageComplete": true
++        }
++      ],
++      "laterStarts": [],
++      "sessions": [],
++      "links": {
++        "infoUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/"
++      }
++    }
++  ]
++}
+diff --git a/dist/preview/fixtures/schedule.json b/dist/preview/fixtures/schedule.json
+new file mode 100644
+index 0000000..24d99b1
+--- /dev/null
++++ b/dist/preview/fixtures/schedule.json
+@@ -0,0 +1,78 @@
++{
++  "schemaVersion": "sorttreks.calendar.v1",
++  "kind": "synthetic-not-official",
++  "revision": 1,
++  "issuedAt": "2026-10-29T15:00:00+00:00",
++  "validUntil": "2026-10-29T21:00:00+00:00",
++  "baselineDigest": "fa765bd71e25b2ed28ec9108f993cd2dd52824b64556f24e337e5a11c24b562a",
++  "events": [
++    {
++      "id": "2026-27-wt2",
++      "timeZone": "America/Toronto",
++      "startDate": "2026-10-30",
++      "endDate": "2026-11-01",
++      "approval": {
++        "reviewer": "SYNTHETIC PREVIEW - NOT A REAL APPROVAL",
++        "reviewedAt": "2026-10-29T15:00:00+00:00",
++        "reportSha256": "30d9124ae3786d00f2d1643de589973484d722c4918bceaa90fed445ee897a24",
++        "authorityVersionId": "synthetic-v1",
++        "basis": "resolved-official-programme"
++      },
++      "sources": [
++        {
++          "url": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
++          "retrievedAt": "2026-10-29T15:00:00+00:00",
++          "revision": {
++            "scope": "schedule",
++            "sequence": 1
++          }
++        }
++      ],
++      "rounds": [
++        {
++          "gender": "men",
++          "distance": 500,
++          "round": "preliminaries",
++          "occurrence": 1,
++          "startsAt": "2026-10-30T09:20:00-04:00",
++          "sourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start"
++        },
++        {
++          "gender": "men",
++          "distance": 500,
++          "round": "heats",
++          "occurrence": 1,
++          "startsAt": "2026-10-30T13:20:00-04:00",
++          "sourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start"
++        },
++        {
++          "gender": "men",
++          "distance": 500,
++          "round": "quarterfinals",
++          "occurrence": 1,
++          "startsAt": "2026-10-31T13:00:00-04:00",
++          "sourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start"
++        },
++        {
++          "gender": "men",
++          "distance": 1000,
++          "round": "finals",
++          "occurrence": 1,
++          "startsAt": "2026-11-01T13:00:00-05:00",
++          "sourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start"
++        }
++      ],
++      "firstStarts": [],
++      "laterStarts": [],
++      "sessions": [],
++      "links": {
++        "infoUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/"
++      }
++    }
++  ]
++}
+diff --git a/dist/preview/fixtures/session.json b/dist/preview/fixtures/session.json
+new file mode 100644
+index 0000000..eb4f5b8
+--- /dev/null
++++ b/dist/preview/fixtures/session.json
+@@ -0,0 +1,133 @@
++{
++  "schemaVersion": "sorttreks.calendar.v1",
++  "kind": "synthetic-not-official",
++  "revision": 4,
++  "issuedAt": "2026-10-29T15:00:00+00:00",
++  "validUntil": "2026-10-29T21:00:00+00:00",
++  "baselineDigest": "fa765bd71e25b2ed28ec9108f993cd2dd52824b64556f24e337e5a11c24b562a",
++  "events": [
++    {
++      "id": "2026-27-wt2",
++      "timeZone": "America/Toronto",
++      "startDate": "2026-10-30",
++      "endDate": "2026-11-01",
++      "approval": {
++        "reviewer": "SYNTHETIC PREVIEW",
++        "reviewedAt": "2026-10-29T15:00:00+00:00",
++        "reportSha256": "e4cc1299ce1f3b8622c49b95b4d116cb3a8398476ae572f94ac058ce8a8dce6f",
++        "authorityVersionId": "synthetic-v2",
++        "basis": "resolved-official-programme"
++      },
++      "sources": [
++        {
++          "url": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "sha256": "3333333333333333333333333333333333333333333333333333333333333333",
++          "retrievedAt": "2026-10-29T15:00:00+00:00",
++          "revision": {
++            "scope": "schedule",
++            "sequence": 2
++          }
++        },
++        {
++          "url": "https://front-api.isu.org/events/get-event-result-round-heats-stk-single",
++          "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
++          "retrievedAt": "2026-10-29T15:00:00+00:00",
++          "revision": {
++            "note": "synthetic test draw"
++          }
++        },
++        {
++          "url": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/",
++          "sha256": "4444444444444444444444444444444444444444444444444444444444444444",
++          "retrievedAt": "2026-10-29T15:00:00+00:00",
++          "revision": {
++            "note": "synthetic session evidence"
++          }
++        }
++      ],
++      "rounds": [
++        {
++          "gender": "men",
++          "distance": 500,
++          "round": "preliminaries",
++          "occurrence": 1,
++          "startsAt": "2026-10-30T09:20:00-04:00",
++          "sourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start"
++        },
++        {
++          "gender": "men",
++          "distance": 500,
++          "round": "heats",
++          "occurrence": 1,
++          "startsAt": "2026-10-30T13:35:00-04:00",
++          "sourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start"
++        },
++        {
++          "gender": "men",
++          "distance": 500,
++          "round": "quarterfinals",
++          "occurrence": 1,
++          "startsAt": "2026-10-31T13:00:00-04:00",
++          "sourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start"
++        },
++        {
++          "gender": "men",
++          "distance": 1000,
++          "round": "finals",
++          "occurrence": 1,
++          "startsAt": "2026-11-01T13:00:00-05:00",
++          "sourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start"
++        }
++      ],
++      "firstStarts": [
++        {
++          "athlete": "Reinis Bērziņš",
++          "gender": "men",
++          "distance": 500,
++          "round": "preliminaries",
++          "occurrence": 1,
++          "startsAt": "2026-10-30T09:20:00-04:00",
++          "sourceUrl": "https://front-api.isu.org/events/get-event-result-round-heats-stk-single",
++          "roundSourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start",
++          "evidenceKind": "start-list",
++          "openingDayCoverageComplete": true
++        },
++        {
++          "athlete": "Roberts Krūzbergs",
++          "gender": "men",
++          "distance": 500,
++          "round": "heats",
++          "occurrence": 1,
++          "startsAt": "2026-10-30T13:35:00-04:00",
++          "sourceUrl": "https://front-api.isu.org/events/get-event-result-round-heats-stk-single",
++          "roundSourceUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
++          "timeBasis": "round-start",
++          "evidenceKind": "start-list",
++          "openingDayCoverageComplete": true
++        }
++      ],
++      "laterStarts": [],
++      "sessions": [
++        {
++          "id": "qualifications",
++          "label": {
++            "lv": "Priekšsacīkstes",
++            "en": "Qualifications"
++          },
++          "startsAt": "2026-10-30T09:00:00-04:00",
++          "endsAt": null,
++          "sourceUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/",
++          "timeBasis": "session-start"
++        }
++      ],
++      "links": {
++        "infoUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/"
++      }
++    }
++  ]
++}
+diff --git a/dist/preview/fixtures/website-baseline.json b/dist/preview/fixtures/website-baseline.json
+new file mode 100644
+index 0000000..751917d
+--- /dev/null
++++ b/dist/preview/fixtures/website-baseline.json
+@@ -0,0 +1,506 @@
++{
++  "season": "2026/27",
++  "domesticEvents": [
++    {"id":"lv-2026-27-spars-1","season":"2026/2027","level":"domestic","title":"SPARS Kauss I","startDate":"2026-09-26","endDate":"2026-09-26","city":"Ventspils","location":"Ventspils, Latvija","timeZone":"Europe/Riga","startTime":"10:00"},
++    {"id":"lv-2026-27-spars-2","season":"2026/2027","level":"domestic","title":"SPARS Kauss II","startDate":"2026-10-24","endDate":"2026-10-24","city":"Ventspils","location":"Ventspils, Latvija","timeZone":"Europe/Riga","startTime":"10:00"},
++    {"id":"lv-2026-27-jlss-1","season":"2026/2027","level":"domestic","title":"JLSS sacensības šorttrekā","startDate":"2026-11-01","endDate":"2026-11-01","city":"Jelgava","location":"Jelgava, Latvija","timeZone":"Europe/Riga"},
++    {"id":"lv-2026-27-spars-3","season":"2026/2027","level":"domestic","title":"SPARS Kauss III","startDate":"2026-11-21","endDate":"2026-11-21","city":"Ventspils","location":"Ventspils, Latvija","timeZone":"Europe/Riga"},
++    {"id":"lv-2026-27-december","season":"2026/2027","level":"domestic","title":"Ziemassvētku balva / Latvijas čempionāts","startDate":"2026-12-19","endDate":"2026-12-19","city":"Ventspils","location":"Ventspils, Latvija","timeZone":"Europe/Riga","competitions":[{"title":"Ziemassvētku balva","eligibility":"Junior D un jaunākām grupām."},{"title":"Latvijas čempionāts","eligibility":"Junior D un vecākām grupām."}]},
++    {"id":"lv-2026-27-jlss-2","season":"2026/2027","level":"domestic","title":"JLSS sacensības šorttrekā","startDate":"2027-01-17","endDate":"2027-01-17","city":"Jelgava","location":"Jelgava, Latvija","timeZone":"Europe/Riga"},
++    {"id":"lv-2026-27-spars-4","season":"2026/2027","level":"domestic","title":"SPARS Kauss IV","startDate":"2027-01-30","endDate":"2027-01-30","city":"Ventspils","location":"Ventspils, Latvija","timeZone":"Europe/Riga"},
++    {"id":"lv-2026-27-spars-5","season":"2026/2027","level":"domestic","title":"SPARS Kauss V","startDate":"2027-02-13","endDate":"2027-02-13","city":"Ventspils","location":"Ventspils, Latvija","timeZone":"Europe/Riga"},
++    {"id":"lv-2026-27-open","season":"2026/2027","level":"domestic","title":"Lithuania & Latvia OPEN","startDate":"2027-03-27","endDate":"2027-03-27","city":"Ventspils","location":"Ventspils, Latvija","timeZone":"Europe/Riga"},
++    {"id":"lv-2026-27-spars-final","season":"2026/2027","level":"domestic","title":"SPARS Kauss FINAL","startDate":"2027-04-17","endDate":"2027-04-17","city":"Ventspils","location":"Ventspils, Latvija","timeZone":"Europe/Riga"}
++  ],
++  "verifiedAt": "2026-10-17",
++  "sources": [
++    "https://www.isu-skating.com/en/short-track/events/",
++    "https://www.isu-skating.com/en/short-track/news/isu-short-track-event-calendar-202627/"
++  ],
++  "events": [
++    {
++      "id": "2026-27-wt1",
++      "title": "ISU Short Track World Tour #1",
++      "level": "senior",
++      "confirmed": true,
++      "startDate": "2026-10-23",
++      "endDate": "2026-10-25",
++      "startPrecision": "time",
++      "timeZone": "America/Vancouver",
++      "startsAt": "2026-10-23T09:00:00-07:00",
++      "endsAt": "2026-10-26T00:00:00-07:00",
++      "city": "Vankūvera",
++      "country": "Kanāda",
++      "location": "Vankūvera, Kanāda",
++      "dateLabel": "23.-25. oktobris 2026",
++      "infoUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/",
++      "verifiedAt": "2026-10-17",
++      "sourceUrl": "https://www.isu-skating.com/en/short-track/news/isu-short-track-event-calendar-202627/",
++      "venue": "Pacific Coliseum",
++      "watchUrl": "https://www.youtube.com/@SkatingISU/streams",
++      "openingSessionLabel": "Priekšsacīkstes: 23. oktobrī plkst. 09.00 Vankūverā",
++      "scheduleNote": "Sesiju sākumi norādīti ISU programmā. Sesiju beigu laiki nav publicēti; tiešraides indikators nav aktivizēts.",
++      "countdownCaption": "līdz pirmajai sacensību sesijai",
++      "entriesUrl": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/12d12d528c94ca8853cf8c37bf40fa88b5d7753f643fe2937181fb364516ae79.pdf",
++      "announcementUrl": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/546312c3edc265308536478228aea67b059298a0076d691f863edf6df2695af0.pdf",
++      "linksCheckedAt": "2026-10-17",
++      "latvianParticipationConfirmed": true,
++      "latvianEntries": [
++        "Roberts Krūzbergs",
++        "Reinis Bērziņš"
++      ],
++      "participationSourceUrl": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/12d12d528c94ca8853cf8c37bf40fa88b5d7753f643fe2937181fb364516ae79.pdf",
++      "countdownEligible": true,
++      "startListsUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=results_16230",
++      "startListsVerified": true,
++      "athleteRoundStarts": [
++        {
++          "athlete": "Reinis Bērziņš",
++          "distance": 500,
++          "round": "repechage-heats",
++          "startsAt": "2026-10-24T11:08:00-07:00",
++          "confirmed": true,
++          "verifiedAt": "2026-10-24",
++          "sourceUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=results_16230&type=15939&round=22871",
++          "roundConfirmation": "Published repechage heat 4, starting position 3."
++        },
++        {
++          "athlete": "Roberts Krūzbergs",
++          "distance": 500,
++          "round": "quarterfinals",
++          "startsAt": "2026-10-24T16:11:00-07:00",
++          "confirmed": true,
++          "verifiedAt": "2026-10-24",
++          "sourceUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=results_16230&type=15939&round=22872",
++          "roundConfirmation": "Official heats: heat 7, ADV to quarterfinals."
++        },
++        {
++          "athlete": "Roberts Krūzbergs",
++          "distance": 1500,
++          "round": "semifinals",
++          "startsAt": "2026-10-24T18:06:00-07:00",
++          "confirmed": true,
++          "verifiedAt": "2026-10-24",
++          "sourceUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=results_16230&type=15942&round=22896",
++          "roundConfirmation": "Official quarterfinals: heat 6, rank 1, Q to semifinals."
++        },
++        {
++          "athlete": "Roberts Krūzbergs",
++          "distance": 1000,
++          "round": "quarterfinals",
++          "startsAt": "2026-10-25T16:56:00-07:00",
++          "confirmed": true,
++          "verifiedAt": "2026-10-24",
++          "sourceUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=results_16230&type=15940&round=22888",
++          "roundConfirmation": "Official heats: heat 4, rank 1, Q to quarterfinals."
++        }
++      ],
++      "calendarArchivedThrough": "2026-10-24",
++      "conditionalRounds": [
++        {"distance":500,"round":"repechage-heats","startsAt":"2026-10-24T11:08:00-07:00","confirmed":true,"verifiedAt":"2026-10-23","sourceUrl":"https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230"},
++        {"distance":1500,"round":"repechage-heats","startsAt":"2026-10-24T11:42:00-07:00","confirmed":true,"verifiedAt":"2026-10-23","sourceUrl":"https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230"},
++        {"distance":500,"round":"repechage-quarterfinals","startsAt":"2026-10-24T12:15:00-07:00","confirmed":true,"verifiedAt":"2026-10-23","sourceUrl":"https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230"},
++        {"distance":500,"round":"repechage-semifinals","startsAt":"2026-10-24T12:49:00-07:00","confirmed":true,"verifiedAt":"2026-10-23","sourceUrl":"https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230"},
++        {"distance":1500,"round":"repechage-quarterfinals","startsAt":"2026-10-24T13:25:00-07:00","confirmed":true,"verifiedAt":"2026-10-23","sourceUrl":"https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230"},
++        {"distance":1500,"round":"repechage-semifinals","startsAt":"2026-10-24T13:53:00-07:00","confirmed":true,"verifiedAt":"2026-10-23","sourceUrl":"https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230"},
++        {"distance":500,"round":"quarterfinals","startsAt":"2026-10-24T16:11:00-07:00","confirmed":true,"verifiedAt":"2026-10-23","sourceUrl":"https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230"},
++        {"distance":500,"round":"semifinals","startsAt":"2026-10-24T16:37:00-07:00","confirmed":true,"verifiedAt":"2026-10-23","sourceUrl":"https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230"},
++        {"distance":500,"round":"finals","startsAt":"2026-10-24T17:08:00-07:00","confirmed":true,"verifiedAt":"2026-10-23","sourceUrl":"https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230"},
++        {"distance":1500,"round":"semifinals","startsAt":"2026-10-24T18:06:00-07:00","confirmed":true,"verifiedAt":"2026-10-23","sourceUrl":"https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230"},
++        {"distance":1500,"round":"finals","startsAt":"2026-10-24T18:48:00-07:00","confirmed":true,"verifiedAt":"2026-10-23","sourceUrl":"https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230"},
++        {"distance":1000,"round":"repechage-heats","startsAt":"2026-10-25T11:54:00-07:00","confirmed":true,"verifiedAt":"2026-10-25","sourceUrl":"https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230"},
++        {"distance":1000,"round":"repechage-quarterfinals","startsAt":"2026-10-25T12:47:00-07:00","confirmed":true,"verifiedAt":"2026-10-25","sourceUrl":"https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230"},
++        {"distance":1000,"round":"repechage-semifinals","startsAt":"2026-10-25T13:58:00-07:00","confirmed":true,"verifiedAt":"2026-10-25","sourceUrl":"https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230"},
++        {"distance":1000,"round":"quarterfinals","startsAt":"2026-10-25T16:56:00-07:00","confirmed":true,"verifiedAt":"2026-10-25","sourceUrl":"https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230"},
++        {"distance":1000,"round":"semifinals","startsAt":"2026-10-25T17:36:00-07:00","confirmed":true,"verifiedAt":"2026-10-25","sourceUrl":"https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230"},
++        {"distance":1000,"round":"finals","startsAt":"2026-10-25T18:04:00-07:00","confirmed":true,"verifiedAt":"2026-10-25","sourceUrl":"https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230"}
++      ],
++      "athleteFirstStarts": [
++        {"athlete":"Roberts Krūzbergs","distance":500,"round":"heats","startsAt":"2026-10-23T13:53:00-07:00","confirmed":true,"verifiedAt":"2026-10-23","roundConfirmation":"Coach-confirmed for Vancouver; not inferred from season ranking.","sourceUrl":"https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230"},
++        {"athlete":"Roberts Krūzbergs","distance":1000,"round":"heats","startsAt":"2026-10-23T15:11:00-07:00","confirmed":true,"verifiedAt":"2026-10-23","roundConfirmation":"Coach-confirmed for Vancouver; not inferred from season ranking.","sourceUrl":"https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230"},
++        {"athlete":"Roberts Krūzbergs","distance":1500,"round":"quarterfinals","startsAt":"2026-10-23T16:41:00-07:00","confirmed":true,"verifiedAt":"2026-10-23","roundConfirmation":"Coach-confirmed for Vancouver; not inferred from season ranking.","sourceUrl":"https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230"},
++        {"athlete":"Reinis Bērziņš","distance":500,"round":"preliminaries","startsAt":"2026-10-23T09:39:00-07:00","confirmed":true,"verifiedAt":"2026-10-23","roundConfirmation":"Coach-confirmed for Vancouver; not inferred from season ranking.","sourceUrl":"https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230"},
++        {"athlete":"Reinis Bērziņš","distance":1000,"round":"heats","startsAt":"2026-10-23T15:11:00-07:00","confirmed":true,"verifiedAt":"2026-10-23","roundConfirmation":"Coach-confirmed for Vancouver; not inferred from season ranking.","sourceUrl":"https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230"},
++        {"athlete":"Reinis Bērziņš","distance":1500,"round":"quarterfinals","startsAt":"2026-10-23T16:41:00-07:00","confirmed":true,"verifiedAt":"2026-10-23","roundConfirmation":"Coach-confirmed for Vancouver; not inferred from season ranking.","sourceUrl":"https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230"}
++      ],
++      "sessions": [
++        {
++          "id": "qualifications",
++          "calendarLabel": "Priekšsacīkstes, braucieni un ceturtdaļfināli",
++          "label": "Priekšsacīkstes",
++          "startsAt": "2026-10-23T09:00:00-07:00",
++          "endsAt": null,
++          "startVerified": true,
++          "endVerified": false,
++          "sourceUrl": "https://isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230",
++          "verifiedAt": "2026-10-20",
++          "estimatedEndsAt": "2026-10-23T19:15:00-07:00",
++          "endEstimateSource": "Vietnes uzturētāja aplēse, 20.10.2026."
++        },
++        {
++          "id": "saturday-repechage",
++          "label": "Papildkvalifikācija",
++          "startsAt": "2026-10-24T11:00:00-07:00",
++          "endsAt": null,
++          "startVerified": true,
++          "endVerified": false,
++          "sourceUrl": "https://isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230",
++          "verifiedAt": "2026-10-20",
++          "estimatedEndsAt": "2026-10-24T14:45:00-07:00",
++          "endEstimateSource": "Vietnes uzturētāja aplēse, 20.10.2026."
++        },
++        {
++          "id": "saturday-main",
++          "label": "Izšķirošie braucieni un fināli",
++          "startsAt": "2026-10-24T16:05:00-07:00",
++          "endsAt": null,
++          "startVerified": true,
++          "endVerified": false,
++          "sourceUrl": "https://isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230",
++          "verifiedAt": "2026-10-20",
++          "estimatedEndsAt": "2026-10-24T20:15:00-07:00",
++          "endEstimateSource": "Vietnes uzturētāja aplēse, 20.10.2026."
++        },
++        {
++          "id": "sunday-repechage",
++          "label": "Papildkvalifikācija",
++          "startsAt": "2026-10-25T11:45:00-07:00",
++          "endsAt": null,
++          "startVerified": true,
++          "endVerified": false,
++          "sourceUrl": "https://isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230",
++          "verifiedAt": "2026-10-20",
++          "estimatedEndsAt": "2026-10-25T14:45:00-07:00",
++          "endEstimateSource": "Vietnes uzturētāja aplēse, 20.10.2026."
++        },
++        {
++          "id": "sunday-main",
++          "label": "Izšķirošie braucieni un fināli",
++          "startsAt": "2026-10-25T16:05:00-07:00",
++          "endsAt": null,
++          "startVerified": true,
++          "endVerified": false,
++          "sourceUrl": "https://isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230",
++          "verifiedAt": "2026-10-20",
++          "estimatedEndsAt": "2026-10-25T20:15:00-07:00",
++          "endEstimateSource": "Vietnes uzturētāja aplēse, 20.10.2026."
++        }
++      ],
++      "scheduleReview": {
++        "checkedAt": "2026-10-20",
++        "sourceUrl": "https://isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230",
++        "documentsSourceUrl": "https://isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=documents_16230",
++        "status": "starts-verified-ends-unpublished",
++        "note": "Pārbaudīti pieci sesiju sākumi. Programmā norādīti braucienu sākumi, nevis sesiju beigas. Nolikumā sesiju beigu laiku nav. endsAt paliek null; tiešraides logi nav aktivizēti."
++      },
++      "endPrecision": "date",
++      "scheduleUrl": "https://isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=schedule_16230",
++      "homepageSessionStates": true,
++      "homepageCompletionHours": 24,
++      "homepageResultsVerified": true,
++      "homepageResultsUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=results_16230",
++      "homepageResultsSourceUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=results_16230",
++      "homepageInformationUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/?tab=documents_16230"
++    },
++    {
++      "id": "2026-27-wt2",
++      "title": "ISU Short Track World Tour #2",
++      "level": "senior",
++      "confirmed": true,
++      "startDate": "2026-10-30",
++      "endDate": "2026-11-01",
++      "startPrecision": "date",
++      "timeZone": "America/Toronto",
++      "startsAt": "2026-10-30T00:00:00-04:00",
++      "endsAt": "2026-11-02T00:00:00-05:00",
++      "city": "Monreāla",
++      "country": "Kanāda",
++      "location": "Monreāla, Kanāda",
++      "dateLabel": "30. oktobris - 1. novembris 2026",
++      "infoUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/",
++      "verifiedAt": "2026-10-17",
++      "sourceUrl": "https://www.isu-skating.com/en/short-track/news/isu-short-track-event-calendar-202627/",
++      "announcementUrl": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/0d5fd743211bbeb8b56684d641b61ad5623cf7379201378383f1e472f5e79a7d.pdf",
++      "linksCheckedAt": "2026-10-17",
++      "countdownEligible": true,
++      "sessions": [],
++      "scheduleReview": {
++        "checkedAt": "2026-10-18",
++        "sourceUrl": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/0d5fd743211bbeb8b56684d641b61ad5623cf7379201378383f1e472f5e79a7d.pdf",
++        "knownMainSessionStarts": [
++          "2026-10-31T13:30:00-04:00",
++          "2026-11-01T13:30:00-05:00"
++        ],
++        "status": "incomplete",
++        "note": "Nolikumā norādīti galveno sesiju sākumi, bet nav beigu laiku. Kvalifikācijas un atkārtoto braucienu sākumi vēl nav noteikti. Tiešraides logi nav aktivizēti."
++      }
++    },
++    {
++      "id": "2026-27-jwc1",
++      "title": "ISU Short Track Junior World Cup #1",
++      "level": "junior",
++      "confirmed": true,
++      "startDate": "2026-11-06",
++      "endDate": "2026-11-08",
++      "startPrecision": "date",
++      "timeZone": "Europe/Rome",
++      "startsAt": "2026-11-06T00:00:00+01:00",
++      "endsAt": "2026-11-09T00:00:00+01:00",
++      "city": "Bormio",
++      "country": "Itālija",
++      "location": "Bormio, Itālija",
++      "dateLabel": "6.-8. novembris 2026",
++      "infoUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-junior-world-cup-1/",
++      "verifiedAt": "2026-10-17",
++      "sourceUrl": "https://www.isu-skating.com/en/short-track/news/isu-short-track-event-calendar-202627/",
++      "announcementUrl": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/56c0778f3a513f51abf35ffa04c9c255ad36272c97723200b6199118df0ef245.pdf",
++      "linksCheckedAt": "2026-10-17",
++      "countdownEligible": true,
++      "sessions": [],
++      "scheduleReview": {
++        "checkedAt": "2026-10-18",
++        "sourceUrl": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/56c0778f3a513f51abf35ffa04c9c255ad36272c97723200b6199118df0ef245.pdf",
++        "knownMainSessionStarts": [
++          "2026-11-07T14:00:00+01:00",
++          "2026-11-08T14:00:00+01:00"
++        ],
++        "status": "incomplete",
++        "note": "Nolikumā norādīti galveno sesiju sākumi, bet nav beigu laiku. Kvalifikācijas un atkārtoto braucienu sākumi vēl nav noteikti. Tiešraides logi nav aktivizēti."
++      }
++    },
++    {
++      "id": "2026-27-jwc2",
++      "title": "ISU Short Track Junior World Cup #2",
++      "level": "junior",
++      "confirmed": true,
++      "startDate": "2026-11-12",
++      "endDate": "2026-11-14",
++      "startPrecision": "date",
++      "timeZone": "Europe/Rome",
++      "startsAt": "2026-11-12T00:00:00+01:00",
++      "endsAt": "2026-11-15T00:00:00+01:00",
++      "city": "Bormio",
++      "country": "Itālija",
++      "location": "Bormio, Itālija",
++      "dateLabel": "12.-14. novembris 2026",
++      "infoUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-junior-world-cup-2/",
++      "verifiedAt": "2026-10-17",
++      "sourceUrl": "https://www.isu-skating.com/en/short-track/news/isu-short-track-event-calendar-202627/",
++      "announcementUrl": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/0fde2ba5018f617133a6fe29561bf0ee2d6b5019f49a6e6489f6ce216417f19f.pdf",
++      "linksCheckedAt": "2026-10-17",
++      "countdownEligible": true,
++      "sessions": [],
++      "scheduleReview": {
++        "checkedAt": "2026-10-18",
++        "sourceUrl": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/0fde2ba5018f617133a6fe29561bf0ee2d6b5019f49a6e6489f6ce216417f19f.pdf",
++        "knownMainSessionStarts": [
++          "2026-11-13T14:00:00+01:00",
++          "2026-11-14T14:00:00+01:00"
++        ],
++        "status": "incomplete",
++        "note": "Nolikumā norādīti galveno sesiju sākumi, bet nav beigu laiku. Kvalifikācijas un atkārtoto braucienu sākumi vēl nav noteikti. Tiešraides logi nav aktivizēti."
++      }
++    },
++    {
++      "id": "2026-27-wt3",
++      "title": "ISU Short Track World Tour #3",
++      "level": "senior",
++      "confirmed": true,
++      "startDate": "2026-11-20",
++      "endDate": "2026-11-22",
++      "startPrecision": "date",
++      "timeZone": "Asia/Seoul",
++      "startsAt": "2026-11-20T00:00:00+09:00",
++      "endsAt": "2026-11-23T00:00:00+09:00",
++      "city": "Seula",
++      "country": "Dienvidkoreja",
++      "location": "Seula, Dienvidkoreja",
++      "dateLabel": "20.-22. novembris 2026",
++      "infoUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-3-seoul/",
++      "verifiedAt": "2026-10-17",
++      "sourceUrl": "https://www.isu-skating.com/en/short-track/news/isu-short-track-event-calendar-202627/",
++      "announcementUrl": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/b6c20621b6b2a5668565f16176d75b68bfc97a864807cf8079180e4835d74a98.pdf",
++      "linksCheckedAt": "2026-10-17",
++      "countdownEligible": true,
++      "sessions": []
++    },
++    {
++      "id": "2026-27-wt4",
++      "title": "ISU Short Track World Tour #4",
++      "level": "senior",
++      "confirmed": true,
++      "startDate": "2026-11-27",
++      "endDate": "2026-11-29",
++      "startPrecision": "date",
++      "timeZone": "Asia/Shanghai",
++      "startsAt": "2026-11-27T00:00:00+08:00",
++      "endsAt": "2026-11-30T00:00:00+08:00",
++      "city": "Šanhaja",
++      "country": "Ķīna",
++      "location": "Šanhaja, Ķīna",
++      "dateLabel": "27.-29. novembris 2026",
++      "infoUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-4-shanghai/",
++      "verifiedAt": "2026-10-17",
++      "sourceUrl": "https://www.isu-skating.com/en/short-track/news/isu-short-track-event-calendar-202627/",
++      "announcementUrl": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/1fc7baf605c5e46a4165f8ba869919c10da14a8d941585ef8e9c44a8c47a050c.pdf",
++      "linksCheckedAt": "2026-10-17",
++      "countdownEligible": true,
++      "sessions": []
++    },
++    {
++      "id": "2026-27-wt5",
++      "title": "ISU Short Track World Tour #5",
++      "level": "senior",
++      "confirmed": true,
++      "startDate": "2026-12-04",
++      "endDate": "2026-12-06",
++      "startPrecision": "date",
++      "timeZone": "Asia/Shanghai",
++      "startsAt": "2026-12-04T00:00:00+08:00",
++      "endsAt": "2026-12-07T00:00:00+08:00",
++      "city": "Pekina",
++      "country": "Ķīna",
++      "location": "Pekina, Ķīna",
++      "dateLabel": "4.-6. decembris 2026",
++      "infoUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-5-beijing/",
++      "verifiedAt": "2026-10-17",
++      "sourceUrl": "https://www.isu-skating.com/en/short-track/news/isu-short-track-event-calendar-202627/",
++      "linksCheckedAt": "2026-10-17",
++      "countdownEligible": true,
++      "sessions": []
++    },
++    {
++      "id": "2026-27-ec",
++      "title": "ISU Short Track European Championships",
++      "level": "senior",
++      "confirmed": true,
++      "startDate": "2027-01-15",
++      "endDate": "2027-01-17",
++      "startPrecision": "date",
++      "timeZone": "Europe/Berlin",
++      "startsAt": "2027-01-15T00:00:00+01:00",
++      "endsAt": "2027-01-18T00:00:00+01:00",
++      "city": "Drēzdene",
++      "country": "Vācija",
++      "location": "Drēzdene, Vācija",
++      "dateLabel": "15.-17. janvāris 2027",
++      "infoUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-european-championships/",
++      "verifiedAt": "2026-10-17",
++      "sourceUrl": "https://www.isu-skating.com/en/short-track/news/isu-short-track-event-calendar-202627/",
++      "linksCheckedAt": "2026-10-17",
++      "countdownEligible": true,
++      "sessions": []
++    },
++    {
++      "id": "2026-27-jwc3",
++      "title": "ISU Short Track Junior World Cup #3",
++      "level": "junior",
++      "confirmed": true,
++      "startDate": "2027-01-22",
++      "endDate": "2027-01-24",
++      "startPrecision": "date",
++      "timeZone": "Asia/Almaty",
++      "startsAt": "2027-01-22T00:00:00+05:00",
++      "endsAt": "2027-01-25T00:00:00+05:00",
++      "city": "Astana",
++      "country": "Kazahstāna",
++      "location": "Astana, Kazahstāna",
++      "dateLabel": "22.-24. janvāris 2027",
++      "infoUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-junior-world-cup-3/",
++      "verifiedAt": "2026-10-17",
++      "sourceUrl": "https://www.isu-skating.com/en/short-track/news/isu-short-track-event-calendar-202627/",
++      "announcementUrl": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/74c12fba68379a069c64c84c9f21f01eabc541702071cdca70b5e5a804861460.pdf",
++      "linksCheckedAt": "2026-10-17",
++      "countdownEligible": true,
++      "sessions": []
++    },
++    {
++      "id": "2026-27-wjc",
++      "title": "ISU Short Track Junior World Championships",
++      "level": "junior",
++      "confirmed": true,
++      "startDate": "2027-01-28",
++      "endDate": "2027-01-31",
++      "startPrecision": "date",
++      "timeZone": "Asia/Almaty",
++      "startsAt": "2027-01-28T00:00:00+05:00",
++      "endsAt": "2027-02-01T00:00:00+05:00",
++      "city": "Astana",
++      "country": "Kazahstāna",
++      "location": "Astana, Kazahstāna",
++      "dateLabel": "28.-31. janvāris 2027",
++      "infoUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-junior-world-championships/",
++      "verifiedAt": "2026-10-17",
++      "sourceUrl": "https://www.isu-skating.com/en/short-track/news/isu-short-track-event-calendar-202627/",
++      "linksCheckedAt": "2026-10-17",
++      "countdownEligible": true,
++      "sessions": []
++    },
++    {
++      "id": "2026-27-wt6",
++      "title": "ISU Short Track World Tour #6",
++      "level": "senior",
++      "confirmed": true,
++      "startDate": "2027-02-05",
++      "endDate": "2027-02-07",
++      "startPrecision": "date",
++      "timeZone": "Europe/Warsaw",
++      "startsAt": "2027-02-05T00:00:00+01:00",
++      "endsAt": "2027-02-08T00:00:00+01:00",
++      "city": "Gdaņska",
++      "country": "Polija",
++      "location": "Gdaņska, Polija",
++      "dateLabel": "5.-7. februāris 2027",
++      "infoUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-6-gdansk/",
++      "verifiedAt": "2026-10-17",
++      "sourceUrl": "https://www.isu-skating.com/en/short-track/news/isu-short-track-event-calendar-202627/",
++      "linksCheckedAt": "2026-10-17",
++      "countdownEligible": true,
++      "sessions": []
++    },
++    {
++      "id": "2026-27-wt7",
++      "title": "ISU Short Track World Tour #7",
++      "level": "senior",
++      "confirmed": true,
++      "startDate": "2027-02-12",
++      "endDate": "2027-02-14",
++      "startPrecision": "date",
++      "timeZone": "Europe/Amsterdam",
++      "startsAt": "2027-02-12T00:00:00+01:00",
++      "endsAt": "2027-02-15T00:00:00+01:00",
++      "city": "Tilburga",
++      "country": "Nīderlande",
++      "location": "Tilburga, Nīderlande",
++      "dateLabel": "12.-14. februāris 2027",
++      "infoUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-7-tilburg/",
++      "verifiedAt": "2026-10-17",
++      "sourceUrl": "https://www.isu-skating.com/en/short-track/news/isu-short-track-event-calendar-202627/",
++      "linksCheckedAt": "2026-10-17",
++      "countdownEligible": true,
++      "sessions": []
++    },
++    {
++      "id": "2026-27-wc",
++      "title": "ISU Short Track World Championships",
++      "level": "senior",
++      "confirmed": true,
++      "startDate": "2027-03-12",
++      "endDate": "2027-03-14",
++      "startPrecision": "date",
++      "timeZone": "Asia/Seoul",
++      "startsAt": "2027-03-12T00:00:00+09:00",
++      "endsAt": "2027-03-15T00:00:00+09:00",
++      "city": "Seula",
++      "country": "Dienvidkoreja",
++      "location": "Seula, Dienvidkoreja",
++      "dateLabel": "12.-14. marts 2027",
++      "infoUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-championships/",
++      "verifiedAt": "2026-10-17",
++      "sourceUrl": "https://www.isu-skating.com/en/short-track/news/isu-short-track-event-calendar-202627/",
++      "linksCheckedAt": "2026-10-17",
++      "countdownEligible": true,
++      "sessions": []
++    }
++  ]
++}
+diff --git a/dist/preview/isu-integration.html b/dist/preview/isu-integration.html
+new file mode 100644
+index 0000000..0646e56
+--- /dev/null
++++ b/dist/preview/isu-integration.html
+@@ -0,0 +1,3 @@
++<!doctype html><html lang="lv"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ISU integration preview - synthetic</title><link rel="stylesheet" href="/assets/site.css"><link rel="stylesheet" href="/assets/calendar.css"><style>
++body{padding:clamp(16px,4vw,56px);max-width:1200px;margin:auto}main{padding:0}h1{font-size:clamp(32px,5vw,56px);line-height:1.08;margin:18px 0}h2{font-size:28px;margin:22px 0 12px}.preview-controls{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0}.preview-controls button{padding:10px 14px;color:#fff;background:#28303a;border:1px solid #65707e;cursor:pointer;border-radius:4px}.preview-controls button[aria-pressed=true]{border-color:#ff4777}.preview-warning{border-left:3px solid #ff4777;background:#242b33;color:#fff;padding:16px}.next-race{position:static!important;transform:none!important;margin:24px 0;max-width:none;width:auto}.calendar-row{grid-template-columns:140px 1fr 100px}#preview-status{min-height:52px}pre{white-space:pre-wrap;word-break:break-word}@media(max-width:650px){.calendar-row{display:block}.calendar-row>time{display:block;margin-bottom:12px}.calendar-state{margin-top:12px}}
++</style></head><body><main><p>sorttreks.lv / integration preview</p><h1 data-preview-title>ISU programmas atjauninājumi</h1><p class="preview-warning">SYNTHETIC DEMONSTRATION - all Montreal times and athlete draws below are invented test data, not official information. The production website is unchanged. The bundled baseline is the existing verified website dataset.</p><div class="preview-controls" aria-label="Language"><button data-preview-lang="lv">LV</button><button data-preview-lang="en">EN</button></div><div class="preview-controls" aria-label="Test scenario"><button data-scenario="baseline">1. Website fallback</button><button data-scenario="schedule">2. Round programme</button><button data-scenario="draws">3. Confirmed draws</button><button data-scenario="revised">4. Revised round</button><button data-scenario="session">5. Explicit session start</button><button data-scenario="conflict">6. Conflict</button><button data-scenario="offline">7. Offline</button><button data-scenario="expired">8. Expired</button></div><p id="preview-status" role="status"></p><h2>Homepage / Sākumlapa</h2><aside class="next-race race-banner" hidden aria-label="Nākamās sacensības"><div><span class="label" data-race-level></span><h2 data-race-title></h2><p data-race-state></p></div><div class="race-count-group"><strong class="race-relative" data-race-relative hidden></strong><div class="race-clock" aria-label="Laiks līdz sacensību sākumam"><span><b data-time="days">00</b><small>dienas</small></span><span><b data-time="hours">00</b><small>stundas</small></span><span><b data-time="minutes">00</b><small>minūtes</small></span><span><b data-time="seconds">00</b><small>sekundes</small></span></div><div class="race-clock-caption" data-race-caption></div></div><a class="button" data-race-watch target="_blank" rel="noopener" hidden>Skaties ISU YouTube <span>↗︎</span></a></aside><h2>Calendar / Kalendārs</h2><div id="preview-calendar"></div><p>The same calendar and homepage renderers used by sorttreks.lv are running here. Round publication alone leaves the homepage unchanged. Only explicit session evidence changes its countdown. No livestream is inferred from round times.</p></main><script type="module" src="./isu-integration.mjs"></script></body></html>
+\ No newline at end of file
+diff --git a/dist/preview/isu-integration.mjs b/dist/preview/isu-integration.mjs
+new file mode 100644
+index 0000000..ab5f3c0
+--- /dev/null
++++ b/dist/preview/isu-integration.mjs
+@@ -0,0 +1,30 @@
++import {createFeedClient} from '../assets/isu-feed-client.mjs';
++import {calendarMarkup} from '../assets/calendar.mjs';
++import {panelView,renderPanel} from '../assets/race-panel.mjs';
++const baseline=await (await fetch('./fixtures/website-baseline.json')).json();
++const fixtures={};for(const name of ['schedule','draws','revised','session','conflict'])fixtures[name]=await(await fetch('./fixtures/'+name+'.json')).json();
++let lastStatus='fallback',lastAt;
++function statusText(status,at){lastStatus=status;lastAt=at;document.querySelector('#preview-status').textContent=(document.documentElement.lang==='en'?{current:'Verified test feed applied',retained:'Unavailable or rejected update - last accepted schedule retained',fallback:'Bundled website fallback'}:{current:'Pārbaudītā testa programma piemērota',retained:'Atjauninājums nav pieejams vai noraidīts - saglabāta pēdējā pārbaudītā programma',fallback:'Vietnes pārbaudītie rezerves dati'})[status]+(at?' · '+at:'');}
++let clock=Date.parse(fixtures.schedule.issuedAt),data=baseline,scenario='baseline';
++const baselineDigest=fixtures.schedule.baselineDigest;
++function draw(){
++ const lang=document.documentElement.lang;
++ const units=lang==='en'?{dienas:'days',stundas:'hours',minūtes:'minutes',sekundes:'seconds'}:{days:'dienas',hours:'stundas',minutes:'minūtes',seconds:'sekundes'};
++ const walker=document.createTreeWalker(document.querySelector('.next-race'),NodeFilter.SHOW_TEXT);while(walker.nextNode()){const n=walker.currentNode;const word=n.nodeValue.trim();if(units[word])n.nodeValue=n.nodeValue.replace(word,units[word]);}
++ statusText(lastStatus,lastAt);
++ document.querySelector('[data-preview-title]').textContent=lang==='en'?'ISU schedule updates':'ISU programmas atjauninājumi';
++ document.querySelector('#preview-calendar').innerHTML=calendarMarkup({...data,events:data.events.filter(e=>e.id==='2026-27-wt2'),domesticEvents:[]},lang,clock);
++ for(const details of document.querySelectorAll('#preview-calendar .calendar-sessions'))details.open=true;
++ renderPanel(document.querySelector('.next-race'),panelView(data.events,clock));
++}
++const client=createFeedClient({baseline,baselineDigest,url:'https://synthetic-preview.invalid/feed',enabled:true,allowSynthetic:true,storage:null,now:()=>clock,
++ fetcher:async()=>{if(scenario==='offline')throw Error('Synthetic network failure');return new Response(JSON.stringify(fixtures[scenario]));},onUpdate:x=>{data=x;draw()},onStatus:statusText});
++document.querySelectorAll('[data-scenario]').forEach(button=>button.addEventListener('click',async()=>{
++ scenario=button.dataset.scenario;for(const b of document.querySelectorAll('[data-scenario]'))b.setAttribute('aria-pressed',String(b===button));
++ if(scenario==='baseline'){data=structuredClone(baseline);draw();document.querySelector('#preview-status').textContent='Bundled baseline - no remote feed applied';return;}
++ if(scenario==='expired'){clock+=7*3600000;client.expire();return;}
++ // Start a fresh sequence after an expiry; revision buttons otherwise follow real monotonic rules.
++ clock=Date.parse(fixtures.schedule.issuedAt);await client.refresh();
++}));
++document.querySelectorAll('[data-preview-lang]').forEach(button=>button.addEventListener('click',()=>{document.documentElement.lang=button.dataset.previewLang;draw()}));
++draw();document.querySelector('#preview-status').textContent='Bundled baseline - no remote feed applied';
+diff --git a/tests/calendar-past.test.mjs b/tests/calendar-past.test.mjs
+index 99fdb86..ad2e113 100644
+--- a/tests/calendar-past.test.mjs
++++ b/tests/calendar-past.test.mjs
+@@ -2,7 +2,7 @@ import {withoutHeadingVisibility} from './localization-preservation.mjs';
+ import {withoutAthleteStarts} from './localization-preservation.mjs';
+ import test from 'node:test';
+ import assert from 'node:assert/strict';
+-import {readFileSync} from 'node:fs';
++import {readFileSync} from './isu-preservation.mjs';
+ import {execFileSync} from 'node:child_process';
+ import {calendarEvents,calendarMarkup,eventStatus,mountCalendar,partitionCalendarEvents} from '../dist/assets/calendar.mjs';
+ const data=withoutAthleteStarts(JSON.parse(readFileSync(new URL('../dist/assets/races.json',import.meta.url),'utf8')));
+diff --git a/tests/calendar.test.mjs b/tests/calendar.test.mjs
+index 1bdfaee..ec1ab90 100644
+--- a/tests/calendar.test.mjs
++++ b/tests/calendar.test.mjs
+@@ -1,6 +1,6 @@
+ import {withoutAthleteStarts} from './localization-preservation.mjs';
+ import assert from 'node:assert/strict';
+-import {readFileSync} from 'node:fs';
++import {readFileSync} from './isu-preservation.mjs';
+ import {filterEvents,eventStatus,groupEvents,mountCalendar} from '../dist/assets/calendar.mjs';
+ import {selectRace,raceCountdownView} from '../dist/assets/race-utils.mjs';
+ const data=withoutAthleteStarts(JSON.parse(readFileSync(new URL('../dist/assets/races.json',import.meta.url))));
+diff --git a/tests/domestic-calendar.test.mjs b/tests/domestic-calendar.test.mjs
+index ecaf70e..22f7bf2 100644
+--- a/tests/domestic-calendar.test.mjs
++++ b/tests/domestic-calendar.test.mjs
+@@ -2,7 +2,7 @@ import {withoutHeadingVisibility} from './localization-preservation.mjs';
+ import {withoutAthleteStarts} from './localization-preservation.mjs';
+ import test from 'node:test';
+ import assert from 'node:assert/strict';
+-import {readFileSync} from 'node:fs';
++import {readFileSync} from './isu-preservation.mjs';
+ import {execFileSync} from 'node:child_process';
+ import {calendarEvents,calendarFilter,calendarMarkup,domesticSeasons,eventStatus,mountCalendar,showCalendarFallback} from '../dist/assets/calendar.mjs';
+ import {panelView,selectPanelEvent} from '../dist/assets/race-panel.mjs';
+diff --git a/tests/editorial.test.mjs b/tests/editorial.test.mjs
+index 43fa6a1..4d4c8f6 100644
+--- a/tests/editorial.test.mjs
++++ b/tests/editorial.test.mjs
+@@ -1,7 +1,7 @@
+ import {stripLanguageSource} from './localization-preservation.mjs';
+ import test from 'node:test';
+ import assert from 'node:assert/strict';
+-import {readFileSync} from 'node:fs';
++import {readFileSync} from './isu-preservation.mjs';
+ import {execFileSync} from 'node:child_process';
+ import {applyEditorialText,normalizeCountdownMarkup} from './approved-audit-helpers.mjs';
+ const baseline='98dee8fd10fdbf423f089760c851aa0d269a7cbb';
+diff --git a/tests/estimated-homepage.test.mjs b/tests/estimated-homepage.test.mjs
+index 11c0651..49266e2 100644
+--- a/tests/estimated-homepage.test.mjs
++++ b/tests/estimated-homepage.test.mjs
+@@ -3,7 +3,7 @@ import {stripLanguageSource} from './localization-preservation.mjs';
+ import {normalizeCountdownMarkup} from './approved-audit-helpers.mjs';
+ import test from 'node:test';
+ import assert from 'node:assert/strict';
+-import {readFileSync} from 'node:fs';
++import {readFileSync} from './isu-preservation.mjs';
+ import {execFileSync} from 'node:child_process';
+ import {panelView,panelWindows,panelEventEnd,mountRacePanels,renderPanel} from '../dist/assets/race-panel.mjs';
+ import {verifiedSessions,sessionRows} from '../dist/assets/race-sessions.mjs';
+diff --git a/tests/isu-approved-source-hashes.json b/tests/isu-approved-source-hashes.json
+new file mode 100644
+index 0000000..d984da3
+--- /dev/null
++++ b/tests/isu-approved-source-hashes.json
+@@ -0,0 +1,6 @@
++{
++  "f9c58487f6a4f5ea21b41cd776bc139a47715d016b125eee2fd91204eae0292e": "dist/assets/calendar.mjs",
++  "bf2c7ae58e9ce6f53b79d849f3d2bee44fb8b46ed809125c96650e0dba371e6a": "dist/assets/race-sessions.mjs",
++  "f62fa4b318434d2c06fabed5e0aa7d6e6dd355f6204d99ebb8e2b0e7f70c2237": "dist/assets/site.js",
++  "2eb62003abc18a2ea927a46409a44a229ca53574989b4f76411d3a66a93966a5": "dist/assets/programme-notice.mjs"
++}
+diff --git a/tests/isu-feed.test.mjs b/tests/isu-feed.test.mjs
+new file mode 100644
+index 0000000..ddda483
+--- /dev/null
++++ b/tests/isu-feed.test.mjs
+@@ -0,0 +1,12 @@
++// New behavior tests read actual implementation files, without historical normalization.
++import test from 'node:test';import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';
++import {mergeFeed,validateFeed} from '../dist/assets/isu-feed-contract.mjs';
++import {competitionProgrammeDays,competitionProgrammeMarkup} from '../dist/assets/calendar.mjs';
++import {panelView} from '../dist/assets/race-panel.mjs';
++import {noticeTarget} from '../dist/assets/programme-notice.mjs';
++const read=n=>JSON.parse(readFileSync(new URL('../dist/preview/fixtures/'+n+'.json',import.meta.url)));
++const baseline=read('website-baseline'),feed=read('draws'),now=Date.parse(feed.issuedAt),opts={now,allowSynthetic:true,baselineDigest:feed.baselineDigest};
++test('both languages show full opening programme without invented participation',()=>{for(const lang of ['lv','en']){const data=mergeFeed(baseline,read('schedule'),opts);const days=competitionProgrammeDays(data.events[1],lang);assert.equal(days.length,3);assert.equal(days[0].sessions.length,2);assert.ok(days.every(d=>d.sessions.every(s=>s.athletes.length===0)));assert.equal(days[0].sessions[0].viewingTime,lang==='lv'?'30.10. 15:20':'30 Oct, 15:20');assert.ok(competitionProgrammeMarkup(data.events[1],lang,now).includes('starti-2026-27-wt2'));}});
++test('draws attach to exact existing rounds once; revision changes time without changing first round',()=>{for(const lang of ['lv','en']){let data=mergeFeed(baseline,feed,opts);const starts=competitionProgrammeDays(data.events[1],lang)[0].sessions;assert.equal(starts.length,2);assert.deepEqual(starts.map(s=>s.athletes),[['Reinis Bērziņš'],['Roberts Krūzbergs']]);data=mergeFeed(data,read('revised'),opts);const next=competitionProgrammeDays(data.events[1],lang)[0].sessions;assert.equal(next[1].startsAt,'2026-10-30T13:35:00-04:00');assert.equal(next[1].athletes[0],'Roberts Krūzbergs');}});
++test('homepage countdown and participation navigation remain actual production implementations',()=>{const rounds=mergeFeed(baseline,feed,opts);const withoutEvent=({event,...view})=>view;assert.deepEqual(withoutEvent(panelView(mergeFeed(baseline,read('schedule'),opts).events,now)),withoutEvent(panelView(baseline.events,now)));assert.equal(noticeTarget(rounds.events,now),'/kalendars?filter=senior#starti-2026-27-wt2');const session=mergeFeed(rounds,read('session'),opts);const state=panelView(session.events,now);assert.equal(state.mode,'countdown');assert.equal(state.event.startsAt,'2026-10-30T09:00:00-04:00');assert.notDeepEqual(state.parts,panelView(baseline.events,now).parts);assert.notEqual(panelView(session.events,Date.parse(state.event.startsAt)).mode,'live');});
++test('verified website fallback is byte-equivalent and production integration disabled',async()=>{assert.deepEqual(read('website-baseline'),JSON.parse(readFileSync(new URL('../dist/assets/races.json',import.meta.url))));const {default:config}=await import('../dist/assets/isu-feed-config.mjs');assert.equal(config.enabled,false);assert.equal(config.url,'');assert.throws(()=>validateFeed(feed,{now}));});
+diff --git a/tests/isu-preservation.mjs b/tests/isu-preservation.mjs
+new file mode 100644
+index 0000000..5aa9b85
+--- /dev/null
++++ b/tests/isu-preservation.mjs
+@@ -0,0 +1,10 @@
++export * from 'node:fs';
++import {readFileSync as read} from 'node:fs';
++import {createHash} from 'node:crypto';
++import {execFileSync} from 'node:child_process';
++const approved=JSON.parse(read(new URL('./isu-approved-source-hashes.json',import.meta.url)));
++export function readFileSync(...args){
++ const value=read(...args);if(typeof value!=='string')return value;
++ const path=approved[createHash('sha256').update(value).digest('hex')];
++ return path?execFileSync('git',['show','c5d4d83a8a02080b255b1d228d487f22d4e6725e:'+path],{encoding:'utf8'}):value;
++}
+diff --git a/tests/multilingual.test.mjs b/tests/multilingual.test.mjs
+index 220ed47..b33d1e4 100644
+--- a/tests/multilingual.test.mjs
++++ b/tests/multilingual.test.mjs
+@@ -1,7 +1,7 @@
+ import {withoutAthleteStarts} from './localization-preservation.mjs';
+ import test from 'node:test';
+ import assert from 'node:assert/strict';
+-import {readFileSync,existsSync} from 'node:fs';
++import {readFileSync,existsSync} from './isu-preservation.mjs';
+ import {execFileSync} from 'node:child_process';
+ import {panelView,panelWindows,selectPanelEvent,mountRacePanels,renderPanel} from '../dist/assets/race-panel.mjs';
+ import {scheduledSessions,verifiedSessions,eventEnd,sessionTime} from '../dist/assets/race-sessions.mjs';
+diff --git a/tests/programme-notice.test.mjs b/tests/programme-notice.test.mjs
+index 93719d0..febc637 100644
+--- a/tests/programme-notice.test.mjs
++++ b/tests/programme-notice.test.mjs
+@@ -1,7 +1,7 @@
+ import {withoutHeadingVisibility} from './localization-preservation.mjs';
+ import test from 'node:test';
+ import assert from 'node:assert/strict';
+-import {readFileSync} from 'node:fs';
++import {readFileSync} from './isu-preservation.mjs';
+ import {execFileSync} from 'node:child_process';
+ import {laterRoundDays,competitionProgrammeMarkup,competitionProgrammeDays,partitionProgrammeDays,openLinkedProgramme} from '../dist/assets/calendar.mjs';
+ import {noticeTarget} from '../dist/assets/programme-notice.mjs';
+diff --git a/tests/vancouver-sessions.test.mjs b/tests/vancouver-sessions.test.mjs
+index 357c347..0993abb 100644
+--- a/tests/vancouver-sessions.test.mjs
++++ b/tests/vancouver-sessions.test.mjs
+@@ -3,7 +3,7 @@ import {stripLanguageSource} from './localization-preservation.mjs';
+ import {normalizeCountdownMarkup} from './approved-audit-helpers.mjs';
+ import test from 'node:test';
+ import assert from 'node:assert/strict';
+-import {readFileSync} from 'node:fs';
++import {readFileSync} from './isu-preservation.mjs';
+ import {execFileSync} from 'node:child_process';
+ import {panelView,selectPanelEvent,mountRacePanels} from '../dist/assets/race-panel.mjs';
+ import {scheduledSessions,verifiedSessions,sessionRows,inVenueZone,sessionTime} from '../dist/assets/race-sessions.mjs';
+diff --git a/tests/world-tour-standings.test.mjs b/tests/world-tour-standings.test.mjs
+index 2b7edb9..f7dbb96 100644
+--- a/tests/world-tour-standings.test.mjs
++++ b/tests/world-tour-standings.test.mjs
+@@ -1,4 +1,4 @@
+-import test from 'node:test';import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';import {execFileSync} from 'node:child_process';
++import test from 'node:test';import assert from 'node:assert/strict';import {readFileSync} from './isu-preservation.mjs';import {execFileSync} from 'node:child_process';
+ import {standingsMarkup,syncStandings} from '../dist/assets/world-tour-standings.mjs';
+ const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8'),data=JSON.parse(read('dist/assets/world-tour-standings.json')),latest=JSON.parse(read('dist/assets/world-tour-latest-stage.json'));
+ test('verified classification snapshot has official ranks, evidence, one stage and no invented Reinis ranks',()=>{

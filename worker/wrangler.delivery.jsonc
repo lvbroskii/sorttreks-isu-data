@@ -1,0 +1,8 @@
+{
+  "name": "sorttreks-approved-feed",
+  "main": "delivery.mjs",
+  "compatibility_date": "2026-10-29",
+  "workers_dev": true,
+  "vars": { "SERVE_APPROVED": "false" },
+  "observability": { "enabled": false }
+}
