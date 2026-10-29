@@ -1,0 +1,34 @@
+{
+  "validationType": "synthetic-not-official",
+  "networkRequests": 0,
+  "monitoringActivated": false,
+  "checks": [
+    {
+      "phase": "empty",
+      "status": "empty",
+      "firstPublicationDetected": false,
+      "authority": "unavailable"
+    },
+    {
+      "phase": "populated",
+      "status": "populated-round-data",
+      "firstPublicationDetected": true,
+      "authority": "resolved"
+    },
+    {
+      "phase": "revised",
+      "status": "populated-round-data",
+      "firstPublicationDetected": false,
+      "authority": "needs-review"
+    },
+    {
+      "phase": "failed",
+      "status": "unavailable",
+      "firstPublicationDetected": false,
+      "authority": "retained-fallback"
+    }
+  ],
+  "evidenceCommits": 4,
+  "sourceCommit": "c70c4c438d3f4e4ac99bb2ce13009b5596418439",
+  "workflowRun": "40889200918"
+}
