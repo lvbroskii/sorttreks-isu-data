@@ -6,6 +6,12 @@
       "file": "checks/2026-10-29/2026-10-29T14-34-48+00-00-4b64f6ec14db.json.gz",
       "status": "empty",
       "firstPublication": false
+    },
+    {
+      "checkedAt": "2026-10-29T21:01:28+00:00",
+      "file": "checks/2026-10-29/2026-10-29T21-01-28+00-00-060475bce9fc.json.gz",
+      "status": "populated-round-data",
+      "firstPublication": true
     }
   ]
 }
