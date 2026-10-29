@@ -3,8 +3,11 @@ on:
   workflow_dispatch:
   schedule:
     # UTC wakeups for this finite Montreal campaign. Python also checks year/end time.
-    - cron: '17,47 * 29-31 10 *'
-    - cron: '17,47 * 1-2 11 *'
+    - cron: '17/30 * 29-31 10 *'
+    - cron: '17/30 * 1-2 11 *'
+    # Temporary native schedule diagnostic: 29 Oct 2026 18:03 Europe/Riga.
+    # The existing Python year/end guard also applies to this trigger.
+    - cron: '3 16 29 10 *'
 permissions:
   contents: read
 concurrency:
@@ -21,6 +24,20 @@ jobs:
     env:
       PYTHONPATH: src
     steps:
+      - name: Record actual trigger (offline tests are not collection)
+        env:
+          PILOT_EVENT_NAME: ${{ github.event_name }}
+          PILOT_SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          python3 - <<'PYCODE' >> "$GITHUB_STEP_SUMMARY"
+          import os
+          print('### Collector trigger evidence')
+          print('Event: '+os.environ['PILOT_EVENT_NAME'])
+          print('Cron: '+os.environ.get('PILOT_SCHEDULE',''))
+          print('Run: '+os.environ['GITHUB_RUN_ID'])
+          print('Source commit: '+os.environ['GITHUB_SHA'])
+          print('Only the collect-and-archive step constitutes ISU collection.')
+          PYCODE
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false

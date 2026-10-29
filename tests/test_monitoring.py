@@ -177,7 +177,7 @@ class DataBranchTests(unittest.TestCase):
         text=(ROOT/'.github/workflows/pilot.yml').read_text()
         self.assertIn("vars.ENABLE_PILOT == 'true'",text);self.assertIn('repository.private == false',text)
         self.assertIn('persist-credentials: false',text);self.assertIn('ubuntu-24.04',text)
-        self.assertIn("'17,47 * 29-31 10 *'",text);self.assertIn("'17,47 * 1-2 11 *'",text)
+        self.assertIn("'17/30 * 29-31 10 *'",text);self.assertIn("'17/30 * 1-2 11 *'",text)
         self.assertNotIn('upload-artifact',text);self.assertNotIn('actions/cache',text)
         self.assertNotIn('--force',(ROOT/'scripts/data-branch.sh').read_text())
         self.assertNotIn('CLOUDFLARE_API_TOKEN',text)
