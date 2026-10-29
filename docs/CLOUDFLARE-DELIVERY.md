@@ -42,3 +42,7 @@ Expected: health200 with enabledfalse/databasefalse; feed503 with explicit fallb
 The deployed disabled route deliberately bypasses upstream fetches and the cache. Validate its no-store/error semantics live. Successful-feed edge-cache hits, ETag304, expiry and upstream-failure handling while enabled cannot be tested through that disabled public route. These remain local regression tests until a separate approved non-production test or genuine approved feed is authorized. Do not toggle production serving or upload synthetic data to test these paths.
 
 Montreal `pilot.yml`, `pilot-data`, its cadence/end guard and the existing Site remain untouched.
+
+## Current account blocker
+
+The selected Google authentication flow reached Cloudflare, but Cloudflare returned: `Unable to sign in. Try again or use your email and password.` A fresh dashboard check also remained signed out. The account and Workers plan therefore could not be inspected, no actual Worker was created, no live workers.dev URL exists from this attempt and no live smoke checks passed. Manual account authentication is required before continuing. Do not infer a missing account or a specific failure cause from this generic message. No credentials or authentication callback values are included in the repository.
