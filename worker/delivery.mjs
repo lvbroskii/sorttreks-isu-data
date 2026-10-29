@@ -7,8 +7,14 @@ export function createDelivery({fetcher=fetch,cache=globalThis.caches?.default,n
   const origin=request.headers.get('Origin');
   const headers={'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','Vary':'Origin','X-Content-Type-Options':'nosniff'};
   if(ORIGINS.has(origin)){headers['Access-Control-Allow-Origin']=origin;headers['Access-Control-Expose-Headers']='ETag';}
-  const respond=(o,status)=>new Response(JSON.stringify(o),{status,headers});
+  const respond=(o,status)=>new Response(request.method==='HEAD'?null:JSON.stringify(o),{status,headers});
   const path=new URL(request.url).pathname;
+  // Conditional browser GETs use If-None-Match, which requires CORS preflight.
+  if(request.method==='OPTIONS'){
+   const requested=(request.headers.get('Access-Control-Request-Headers')||'').toLowerCase().split(',').map(s=>s.trim()).filter(Boolean);
+   if(!ORIGINS.has(origin)||!['/v1/calendar','/health'].includes(path)||!['GET','HEAD'].includes(request.headers.get('Access-Control-Request-Method'))||requested.some(h=>h!=='if-none-match'))return respond({error:'cors-preflight-rejected'},403);
+   return new Response(null,{status:204,headers:{...headers,'Vary':'Origin, Access-Control-Request-Method, Access-Control-Request-Headers','Access-Control-Allow-Methods':'GET, HEAD','Access-Control-Allow-Headers':'If-None-Match','Access-Control-Max-Age':'300'}});
+  }
   if(!['GET','HEAD'].includes(request.method))return respond({error:'read-only'},405);
   if(path==='/health')return respond({mode:'approved-feed-delivery',enabled:env.SERVE_APPROVED==='true',storage:'public-github',database:false},200);
   if(path!=='/v1/calendar')return respond({error:'not-found'},404);
