@@ -1,14 +1,15 @@
-# Activate Montreal read-only monitoring - v0.4.1
+# Activate Montreal read-only monitoring - v0.4.2
 
 Prepared locally; **monitoring has not been activated**. The website and Cloudflare
 are not involved. Use a separate **public** GitHub repository with standard Ubuntu
 runners. No ISU API key, Cloudflare token, Sites credential or paid feature is needed.
 
-HTML credential values are removed before public persistence; original-response hashes are retained. Use v0.4.1 or later for upload. See [PUBLIC-CAPTURE-SECURITY.md](PUBLIC-CAPTURE-SECURITY.md).
+HTML credential values are removed before public persistence; original-response hashes are retained. Use v0.4.2 or later for upload. See [PUBLIC-CAPTURE-SECURITY.md](PUBLIC-CAPTURE-SECURITY.md).
 
 ## Exact activation steps
 
-1. Unpack the delivered ZIP. Open the inner `isu-data-pilot` directory. Confirm
+1. Wait for **Actions > Offline pilot validation** to pass. Its `pilot-validation/result.json` must identify the current source commit. This workflow does not collect ISU data or activate monitoring.
+2. Unpack the delivered ZIP. Open the inner `isu-data-pilot` directory. Confirm
    `.github/workflows/pilot.yml` is present; it must be uploaded too.
 2. On GitHub create an empty repository named **`sorttreks-isu-data`**, visibility
    **Public**, default branch **`main`**. Do not enable Git LFS, Pages, paid runners,
@@ -109,21 +110,13 @@ verified snapshots or revision evidence. Review/export the archive if it pauses;
 do not enable paid storage. Metadata/legacy migration may consume part of the
 reserved headroom; the download budget bounds each check's new response volume.
 
-A verified actual empty Montreal capture from 29 October is bootstrapped as
-**historical evidence**, not presented as a fresh successful request. The monitor:
-
-1. Detects genuine parsed race-round records, not a visible tab, session-only
-   unsupported content or a nonempty arbitrary payload.
-2. Pins the first populated raw hash, retrieval time and preceding empty evidence.
-   This bounds when the collector observed publication; it is **not** the official
-   publication instant or a schedule revision timestamp.
-3. Separately records the first structurally validated complete programme after
-   matching round metadata. Partial/unsupported data stays in review.
-4. Converts observed round instants into `Europe/Riga` LV/EN labels and records
-   subsequent previous/new times, affected round and source.
-5. Passes every candidate through the existing source-authority system. A newer
-   retrieval or import timestamp does not resolve conflicting timetables. The
-   last selected verified data remains available, including on empty/failing reads.
+No historical fixture is needed at runtime. A live empty response establishes
+`emptyEvidence`; a later genuine programme then pins the empty-to-populated
+transition. If the first live response is already populated, it is recorded as
+`initial-populated-without-empty-baseline`; no prior empty state is invented.
+Observed rows receive Riga labels, and subsequent revisions are recorded without
+allowing retrieval timestamps to resolve source-authority conflicts. The first
+structurally complete programme is tracked separately from the first round data.
 
 The observed programme candidate and the selected schedule are distinct. A revised
 API snapshot can be archived/reported while the authority decision retains the

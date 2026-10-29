@@ -7,18 +7,18 @@ import unittest
 from pathlib import Path
 from urllib.parse import parse_qs
 from isu_pilot.live_api import schedule,rounds,draw,collect_live,BASE
-from isu_pilot.captured import CapturedClient
+from isu_pilot.synthetic import SyntheticClient as SyntheticFixtureClient,api_case,encode
 from isu_pilot.sources import Client,official
 from isu_pilot.matching import match_athletes
 
 ROOT=Path(__file__).resolve().parents[1]
 EVENT=json.loads((ROOT/'config/events.json').read_text())[0]
-FIX=ROOT/'fixtures/real/live-api'
 
 
-def load(name):return json.loads((FIX/name).read_text())
+
+def load(name):return api_case(name)
 def encoded(x):return json.dumps(x).encode()
-def row():return next(r for r in schedule((FIX/'vancouver-schedule.json').read_bytes(),EVENT,BASE,True)[0] if r['eventResultRoundId']==22870)
+def row():return next(r for r in schedule(encode(api_case('vancouver-schedule.json')),EVENT,BASE,True)[0] if r['eventResultRoundId']==22870)
 def synthetic_draw():
     raw=load('vancouver-draw-22870.json')
     for heat in raw['data']:
@@ -42,14 +42,14 @@ class SyntheticApiTests(unittest.TestCase):
         first,_,_=match_athletes([row()],people,aliases,EVENT)
         self.assertTrue(first[0]['confirmed'])
     def test_seeded_first_round_requires_both_preliminaries_and_heats(self):
-        class SyntheticClient(CapturedClient):
+        class SyntheticClient(SyntheticFixtureClient):
             missing_prelim=False
             def get(self,url):
                 body,record=super().get(url)
                 if body is None:return body,record
                 if 'get-event-result-round?' in url and url.endswith('=15939'):
                     value=json.loads(body)
-                    programme_rows=schedule((FIX/'vancouver-schedule.json').read_bytes(),EVENT,BASE,True)[0]
+                    programme_rows=schedule(encode(api_case('vancouver-schedule.json')),EVENT,BASE,True)[0]
                     for item in value['data']:
                         item['status']='Scheduled'
                         item['date']=next(r['apiUtcStart'] for r in programme_rows if r['eventResultRoundId']==item['event_result_round_id'])
@@ -88,9 +88,9 @@ class SyntheticApiTests(unittest.TestCase):
         raw=load('vancouver-rounds-15939.json');raw['data'][0]['event_id']=16272
         with self.assertRaisesRegex(ValueError,'another event'):rounds(encoded(raw),EVENT,16230,15939,[row()])
     def test_truncated_schedule_disagrees_with_metadata(self):
-        rows=schedule((FIX/'vancouver-schedule.json').read_bytes(),EVENT,BASE,True)[0]
+        rows=schedule(encode(api_case('vancouver-schedule.json')),EVENT,BASE,True)[0]
         rows=[r for r in rows if r['eventResultRoundId']!=22870]
-        with self.assertRaises(ValueError):rounds((FIX/'vancouver-rounds-15939.json').read_bytes(),EVENT,16230,15939,rows)
+        with self.assertRaises(ValueError):rounds(encode(api_case('vancouver-rounds-15939.json')),EVENT,16230,15939,rows)
     def test_partial_draw_with_heat_gap_rejected(self):
         raw,meta=synthetic_draw();del raw['data'][1]
         with self.assertRaisesRegex(ValueError,'Non-contiguous'):draw(encoded(raw),row(),meta,BASE,EVENT)
@@ -118,7 +118,7 @@ class SyntheticApiTests(unittest.TestCase):
             if item['event_schedule_title']=='Men 500 m' and item['round_information']=='Finals':item['event_result_id']=999999
         self.assertIn('live-api-repeated-distance-occurrence-unverified',schedule(encoded(raw),EVENT,BASE,True)[1])
     def test_identity_required(self):
-        self.assertEqual(schedule((FIX/'vancouver-schedule.json').read_bytes(),EVENT,BASE,False)[0],[])
+        self.assertEqual(schedule(encode(api_case('vancouver-schedule.json')),EVENT,BASE,False)[0],[])
 
 
 class QueryTransportTests(unittest.TestCase):

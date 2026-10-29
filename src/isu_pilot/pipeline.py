@@ -49,6 +49,8 @@ def offline(root):
     events=json.loads((root/'config/events.json').read_text())
     aliases=json.loads((root/'config/athletes.json').read_text())
     reference=json.loads((root/'config/site-reference.json').read_text())
+    if not (root/'fixtures/real/manifest.json').is_file():
+        raise ValueError('Historical captures are local-only and absent. Use synthetic-sample for public regression validation.')
     meta=json.loads((root/'fixtures/real/manifest.json').read_text())
     event=events[0]
     data=build(event,(root/'fixtures/real/vancouver-protocol-extract.txt').read_text(),meta['protocolUrl'],aliases,reference['events'][0])

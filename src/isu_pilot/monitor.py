@@ -25,26 +25,6 @@ def plan(config,state,now):
     return 'due'
 
 
-def seed(root,event,state_dir,monitor):
-    """Actual prior empty capture, labelled historical; never re-verified as fresh."""
-    if monitor.get('baselineInitialized'):return
-    path=Path(root)/'config/monitoring.json';config=load(path,{})
-    manifest_path=Path(root)/config['baselineManifest']
-    manifest=load(manifest_path,{})
-    url=BASE+'/events/getschedule/'+event['infoUrl'].rstrip('/').split('/')[-1]
-    record=next(r for r in manifest['sources'] if r['url']==url and r['httpStatus']==200)
-    body=(manifest_path.parent/record['file']).read_bytes()
-    if hashlib.sha256(body).hexdigest()!=record['sha256']:raise ValueError('Bootstrap capture hash mismatch')
-    rows,issues=schedule(body,event,url,True)
-    if rows or issues!=['live-api-programme-unpublished']:raise ValueError('Expected actual empty-programme baseline')
-    Path(state_dir).mkdir(parents=True,exist_ok=True)
-    (Path(state_dir)/(record['sha256']+'.body')).write_bytes(body)
-    monitor.update(baselineInitialized=True,lastProgrammeState='empty',
-                   emptyEvidence={'sha256':record['sha256'],'retrievedAt':record['fetchedAt'],'url':url,
-                                  'historicalBootstrap':True},firstPublishedProgramme=None,
-                   lastProgrammeVersion=None)
-
-
 def observe(event,body,record,identity,monitor):
     """Record observation ordering, not sporting authority or a guessed revision date."""
     result={'status':'unavailable','firstPublicationDetected':False,'roundChanges':[],'rounds':[]}
@@ -67,7 +47,9 @@ def observe(event,body,record,identity,monitor):
                'roundCount':len(rows),'previousEmptyEvidence':copy.deepcopy(monitor.get('emptyEvidence')),
                'validationStatus':'candidate-needs-cross-source-validation','isRevisionTimestamp':False}
         monitor['firstPublishedProgramme']=first
-        result['firstPublicationDetected']=True
+        result['firstPublicationDetected']=bool(monitor.get('emptyEvidence'))
+        result['firstRoundDataObserved']=True
+        first['observationKind']='empty-to-populated' if monitor.get('emptyEvidence') else 'initial-populated-without-empty-baseline'
     monitor['lastProgrammeState']='populated-round-data'
     monitor['lastProgrammeVersion']=candidate
     # Empty/failed checks never replace the last parseable round snapshot.
@@ -88,7 +70,6 @@ def run(root,state_dir,archive_dir,now=None,client_factory=Client):
                 'approvedForWebsite':False,'reason':'Evidence retained. No source reads; export/archive review required.'}
     events=load(root/'config/events.json',[])
     event=next(e for e in events if e['id']==config['eventId'])
-    seed(root,event,state_dir,monitor)
     previous=load(state_dir/'sources.json',{})
     client=client_factory(state_dir,previous,byte_budget=config['runDownloadLimitMiB']*MiB,raw_sink=archive.add)
     error=None;event_report=None

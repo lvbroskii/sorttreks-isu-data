@@ -1,3 +1,5 @@
+> Historical implementation notes: the referenced source captures are kept locally and are not included in public CI. See [PUBLIC-VALIDATION.md](PUBLIC-VALIDATION.md).
+
 # Montreal publication check - 29 October 2026, 14:53 Latvia time
 
 This is a one-off read-only check of the official Montreal World Tour #2 event

@@ -9,6 +9,7 @@ from pathlib import Path
 from isu_pilot.publication import assess,changes
 from isu_pilot.live_api import schedule,BASE
 from isu_pilot.sources import Client
+from isu_pilot.synthetic import programme as synthetic_programme,encode
 from isu_pilot.revisions import version,History
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -68,7 +69,7 @@ class SyntheticPublicationTests(unittest.TestCase):
         self.assertEqual(r['stages']['athleteDraws'][old['athlete']]['status'],'not-verified')
         self.assertTrue(r['retainVerifiedFallback']);self.assertFalse(r['approvedForWebsite'])
     def test_empty_to_populated_transition_is_synthetic_and_preserves_authority_review(self):
-        raw=json.loads((ROOT/'fixtures/real/live-api/vancouver-schedule.json').read_text())
+        raw=synthetic_programme()
         # Explicitly synthetic Montreal times/IDs; no populated Montreal source was captured.
         for item in raw['data']['value']:
             item['start_time']=(datetime.fromisoformat(item['start_time'].replace('Z','+00:00'))+timedelta(days=7)).isoformat()
@@ -92,10 +93,10 @@ class SyntheticPublicationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             h=History(Path(td)/'history.json')
             event=json.loads((ROOT/'config/events.json').read_text())[0]
-            rows,issues=schedule((ROOT/'fixtures/real/live-api/vancouver-schedule.json').read_bytes(),event,BASE,True)
-            h.resolve(event['id'],[version(event,'online',BASE,rows,{'sha256':'captured'})])
+            rows,issues=schedule(encode(synthetic_programme()),event,BASE,True)
+            h.resolve(event['id'],[version(event,'online',BASE,rows,{'sha256':'synthetic'})])
             d=h.resolve(event['id'],[version(event,'online',BASE,[],{'sha256':'empty'},issues=['unpublished'])])
-            self.assertTrue(d['retainedPrevious']);self.assertEqual(len(d['selected']['rows']),52)
+            self.assertTrue(d['retainedPrevious']);self.assertEqual(len(d['selected']['rows']),9)
     def test_transitions_cannot_cross_event_identity(self):
         with self.assertRaises(ValueError):changes({'eventId':'other'},assess(EVENT,PAGE,EMPTY))
 

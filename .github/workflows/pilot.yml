@@ -41,12 +41,12 @@ jobs:
           decision=plan(load('config/monitoring.json',{}),load('.state/monitor-state.json',{}),datetime.now(timezone.utc))
           print('decision='+decision)
           PY
-      - name: Tests and archived-source validation
+      - name: Tests and synthetic contract validation
         if: steps.plan.outputs.decision == 'due'
         run: |
           python3 -m unittest discover -s tests -v
           node --test tests/worker.test.mjs
-          python3 -m isu_pilot api-sample --out out/sample
+          python3 -m isu_pilot synthetic-sample --out out/sample
       - name: Ensure free PDF fallback tool
         if: steps.plan.outputs.decision == 'due'
         run: |

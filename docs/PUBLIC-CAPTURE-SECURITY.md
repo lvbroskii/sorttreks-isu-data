@@ -1,3 +1,5 @@
+> Historical implementation notes: the referenced source captures are kept locally and are not included in public CI. See [PUBLIC-VALIDATION.md](PUBLIC-VALIDATION.md).
+
 # Public capture security - v0.4.1
 
 An automatic approval review blocked the initial GitHub tree upload because the

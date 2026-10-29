@@ -1,6 +1,6 @@
 [project]
 name = "sorttreks-isu-data"
-version = "0.4.1"
+version = "0.4.2"
 description = "Read-only official ISU data collector pilot for sorttreks.lv"
 requires-python = ">=3.12"
 dependencies = []

@@ -1,3 +1,5 @@
+> Historical implementation notes: the referenced source captures are kept locally and are not included in public CI. See [PUBLIC-VALIDATION.md](PUBLIC-VALIDATION.md).
+
 # Public programme and heat-assignment adapter - v0.3
 
 This is a read-only collector update, checked on 29 October 2026. No account, key,

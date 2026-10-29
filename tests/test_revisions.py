@@ -14,8 +14,7 @@ from isu_pilot.polling import cadence,due
 ROOT=Path(__file__).resolve().parents[1]
 EVENT=json.loads((ROOT/'config/events.json').read_text())[0]
 ALIASES=json.loads((ROOT/'config/athletes.json').read_text())
-TEXT=(ROOT/'fixtures/real/vancouver-protocol-extract.txt').read_text()
-URL=json.loads((ROOT/'fixtures/real/manifest.json').read_text())['protocolUrl']
+from isu_pilot.synthetic import C08 as TEXT,C08_URL as URL,event_html
 ONLINE=EVENT['infoUrl']+'?tab=schedule_16230'
 ROWS=timetable(TEXT,EVENT,URL)[0]
 
@@ -91,7 +90,7 @@ class HistoryTests(unittest.TestCase):
  def test_failed_check_retains_selected_and_marks_stale(self):
   with tempfile.TemporaryDirectory() as td:
    h=History(Path(td)/'history.json');h.resolve(EVENT['id'],[variant()]);d=h.resolve(EVENT['id'],[])
-   self.assertEqual(d['status'],'retained-fallback');self.assertTrue(d['stale']);self.assertTrue(d['retainedPrevious']);self.assertEqual(len(d['selected']['rows']),77)
+   self.assertEqual(d['status'],'retained-fallback');self.assertTrue(d['stale']);self.assertTrue(d['retainedPrevious']);self.assertEqual(len(d['selected']['rows']),10)
  def test_incomplete_check_retains_previously_verified_athlete_rows(self):
   with tempfile.TemporaryDirectory() as td:
    h=History(Path(td)/'schedules.json');h.resolve(EVENT['id'],[variant()])
@@ -126,11 +125,11 @@ class AdapterTests(unittest.TestCase):
  def test_incomplete_programme_goes_to_review(self):
   rows,rev,issues=programme(self.html().replace('data-complete="true"',''),EVENT,ONLINE,True)
   self.assertIn('online-completeness-unverified',issues)
- def test_real_archive_shell_is_not_revised_schedule(self):
-  text=(ROOT/'fixtures/real/vancouver-programme-shell.html').read_text()
+ def test_synthetic_shell_is_not_revised_schedule(self):
+  text=event_html(EVENT)
   rows,rev,issues=programme(text,EVENT,ONLINE,True)
   self.assertEqual(rows,[]);self.assertNotIn('revisedAt',rev)
- def test_actual_c08_revision_not_protocol_upload_date(self):
+ def test_synthetic_c08_revision_not_upload_date(self):
   rev=pdf_revision(TEXT,EVENT)
   self.assertEqual(rev['number'],'1.0');self.assertEqual(rev['printedAt'],'2026-10-21T21:32:00');self.assertEqual(rev['printedTimeZone'],'unspecified');self.assertNotIn('revisedAt',rev)
 
@@ -151,13 +150,13 @@ class PollingTests(unittest.TestCase):
 class AdditionalGuards(unittest.TestCase):
  def test_newer_partial_source_cannot_erase_known_rounds(self):
   older=variant();newer=variant('online','2026-10-24',changed=True)
-  newer['rows']=newer['rows'][:10]
+  newer['rows']=newer['rows'][:3]
   d=choose([newer],older)
   self.assertEqual(d['status'],'needs-review');self.assertEqual(d['selected']['versionId'],older['versionId'])
- def test_vancouver_archive_does_not_prove_supersession(self):
-  from isu_pilot.pipeline import offline
-  v=offline(ROOT)['revisionValidation']
-  self.assertFalse(v['supersessionEstablished']);self.assertIsNone(v['websiteTimesIncorrect']);self.assertEqual(v['onlineArchivedRowCount'],0)
+ def test_synthetic_shell_does_not_prove_supersession(self):
+  rows,rev,issues=programme(event_html(EVENT),EVENT,ONLINE,True)
+  self.assertEqual(rows,[]);self.assertNotIn('revisedAt',rev)
+  self.assertEqual(choose([variant(),variant('online',changed=True)])['status'],'needs-review')
  def test_page_upload_time_not_a_revision_stamp(self):
   from isu_pilot.programme import evidence
   rev=evidence('Protocol uploaded 2026-10-26. Page updated 2026-10-29','America/Vancouver')

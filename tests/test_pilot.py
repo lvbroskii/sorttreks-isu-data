@@ -1,3 +1,4 @@
+"""Synthetic parser/matcher/transport regression tests; not captured-source validation."""
 import copy
 import hashlib
 import io
@@ -11,14 +12,16 @@ from isu_pilot.timezones import local_instant,display
 from isu_pilot.html import discover
 from isu_pilot.pdf import timetable,race_participation
 from isu_pilot.matching import match_athletes,name_key
-from isu_pilot.pipeline import offline,PATCH_FIELDS
+from isu_pilot.pipeline import build,PATCH_FIELDS
+from isu_pilot.synthetic import C08 as TEXT,C08_URL as URL,event_html,demo
 from isu_pilot.sources import Client,official,MAX_BYTES
 
 ROOT=Path(__file__).resolve().parents[1]
 EVENT=json.loads((ROOT/'config/events.json').read_text())[0]
 ALIASES=json.loads((ROOT/'config/athletes.json').read_text())
-TEXT=(ROOT/'fixtures/real/vancouver-protocol-extract.txt').read_text()
-URL=json.loads((ROOT/'fixtures/real/manifest.json').read_text())['protocolUrl']
+def offline(root):
+ data=build(EVENT,TEXT,URL,ALIASES,{'athleteFirstStarts':[{'athlete':name,'distance':distance,'startsAt':'2026-10-23T18:00:00-07:00','round':rd} for name in ['Roberts Krūzbergs','Reinis Bērziņš'] for distance,rd in [(500,'heats'),(1000,'heats'),(1500,'quarterfinals')]]})
+ return data
 
 class TimeTests(unittest.TestCase):
  def test_riga_dst_midnight(self):
@@ -33,16 +36,16 @@ class TimeTests(unittest.TestCase):
  def test_invalid_clock(self):
   with self.assertRaises(ValueError):local_instant('2026-10-23','25:00','America/Vancouver')
 
-class RealSourceTests(unittest.TestCase):
+class SyntheticSourceTests(unittest.TestCase):
  def test_document_discovery_without_eval(self):
-  s=discover((ROOT/'fixtures/real/vancouver-documents.html').read_text(),EVENT['infoUrl'],EVENT)
+  s=discover(event_html(EVENT),EVENT['infoUrl'],EVENT)
   self.assertTrue(s['identityVerified'])
   self.assertIn(URL,[d['url'] for d in s['documents']])
   self.assertTrue(s['tabs']['schedule'].endswith('schedule_16230'))
  def test_shell_not_schedule(self):
-  s=discover((ROOT/'fixtures/real/vancouver-programme-shell.html').read_text(),EVENT['infoUrl'],EVENT)
+  s=discover(event_html(EVENT),EVENT['infoUrl'],EVENT)
   self.assertTrue(s['programmeShell'])
- def test_c08_real_rounds_breaks_no_estimates(self):
+ def test_synthetic_c08_rounds_breaks_no_estimates(self):
   rows,issues=timetable(TEXT,EVENT,URL)
   self.assertEqual(issues,[])
   m500=[r for r in rows if r.get('gender')=='men' and r.get('distance')==500 and r.get('round')=='heats'][0]

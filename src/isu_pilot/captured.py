@@ -14,6 +14,8 @@ from .revisions import choose, version
 class CapturedClient:
     def __init__(self, root):
         self.root=Path(root)/'fixtures/real/live-api'
+        if not (self.root/'manifest.json').is_file():
+            raise ValueError('Historical captures are local-only and absent. Use synthetic-sample; no substitute is presented as real evidence.')
         self.manifest=json.loads((self.root/'manifest.json').read_text())
         self.sources={r['url']:r for r in self.manifest['sources']}
         self.records={}

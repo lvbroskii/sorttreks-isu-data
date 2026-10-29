@@ -5,6 +5,5 @@
   "intervalMinutes": 30,
   "archiveLimitMiB": 256,
   "reserveMiB": 48,
-  "runDownloadLimitMiB": 32,
-  "baselineManifest": "fixtures/real/montreal-publication-2026-10-29/manifest.json"
+  "runDownloadLimitMiB": 32
 }

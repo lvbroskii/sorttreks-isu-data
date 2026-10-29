@@ -1,0 +1,43 @@
+name: Offline pilot validation
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write # Only the isolated pilot-validation summary branch is written.
+jobs:
+  validate:
+    if: github.event.repository.private == false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Public synthetic regression tests
+        run: |
+          python3 -m unittest discover -s tests -v
+          node --test tests/worker.test.mjs
+          python3 -m isu_pilot synthetic-sample --out out/synthetic-sample
+      - name: Complete workflow rehearsal without ISU access or a GitHub push
+        run: python3 tests/offline_workflow.py out/workflow-rehearsal
+      - name: Summary only (no artifacts or caches)
+        run: cat out/workflow-rehearsal/offline-workflow.json >> "$GITHUB_STEP_SUMMARY"
+      - name: Verify real GitHub evidence permissions using a synthetic summary only
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GIT_ASKPASS: ${{ github.workspace }}/scripts/git-askpass.sh
+          GIT_TERMINAL_PROMPT: '0'
+        run: |
+          bash scripts/data-branch.sh load /tmp/pilot-validation "https://github.com/${GITHUB_REPOSITORY}.git" pilot-validation
+          python3 - <<'PYCODE'
+          import json,os
+          from pathlib import Path
+          result=json.loads(Path('out/workflow-rehearsal/offline-workflow.json').read_text())
+          result['sourceCommit']=os.environ['GITHUB_SHA']
+          result['workflowRun']=os.environ['GITHUB_RUN_ID']
+          Path('/tmp/pilot-validation/result.json').write_text(json.dumps(result,indent=2)+'\n')
+          PYCODE
+          bash scripts/data-branch.sh save /tmp/pilot-validation "https://github.com/${GITHUB_REPOSITORY}.git" pilot-validation

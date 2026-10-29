@@ -15,7 +15,7 @@ def dump(path,value):
 
 def main():
     parser=argparse.ArgumentParser(description='Read-only collector: never updates sorttreks.lv or Cloudflare')
-    parser.add_argument('mode',choices=['sample','api-sample','collect','publication','monitor'])
+    parser.add_argument('mode',choices=['sample','api-sample','collect','publication','monitor','synthetic-sample'])
     parser.add_argument('--root',type=Path,default=Path('.'))
     parser.add_argument('--out',type=Path,default=Path('out'))
     parser.add_argument('--archive',type=Path,default=Path('.archive'))
@@ -23,7 +23,10 @@ def main():
     parser.add_argument('--due-only',action='store_true',help='Use persisted adaptive check times')
     parser.add_argument('--event',help='Optional registry id')
     args=parser.parse_args();root=args.root
-    if args.mode=='monitor':
+    if args.mode=='synthetic-sample':
+        from .synthetic import demo
+        report=demo(root)
+    elif args.mode=='monitor':
         from .monitor import run
         result=run(root,args.state,args.archive)
         dump(args.out/'report.json',result)

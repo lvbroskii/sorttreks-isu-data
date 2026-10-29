@@ -14,12 +14,13 @@ from isu_pilot.archive import Archive,load,write
 from isu_pilot.monitor import plan,observe,run
 from isu_pilot.live_api import discover_draw_ids,BASE
 from isu_pilot.sources import Client
+from isu_pilot.synthetic import empty,programme,event_html,encode
 
 ROOT=Path(__file__).resolve().parents[1]
 EVENT=json.loads((ROOT/'config/events.json').read_text())[1]
 CONFIG=json.loads((ROOT/'config/monitoring.json').read_text())
 UTC=timezone.utc
-EMPTY=(ROOT/'fixtures/real/montreal-publication-2026-10-29/programme.json').read_bytes()
+EMPTY=encode(empty())
 URL=BASE+'/events/getschedule/isu-short-track-world-tour-2-montreal'
 
 
@@ -28,7 +29,7 @@ def record(body,when='2026-10-30T10:00:00Z'):
 
 
 def synthetic_programme():
-    source=json.loads((ROOT/'fixtures/real/live-api/vancouver-schedule.json').read_text())
+    source=programme()
     for row in source['data']['value']:
         row['start_time']=(datetime.fromisoformat(row['start_time'].replace('Z','+00:00'))+timedelta(days=7)).isoformat()
     return json.dumps(source).encode()
@@ -44,10 +45,10 @@ class CampaignTests(unittest.TestCase):
     def test_hard_stop_and_wrong_year_never_collect(self):
         for now in [datetime(2026,10,28,tzinfo=UTC),datetime(2026,11,2,18,tzinfo=UTC),datetime(2027,10,29,tzinfo=UTC)]:
             self.assertEqual(plan(CONFIG,{},now),'outside-campaign-window')
-    def test_first_empty_to_real_round_shape_pinned_only_once(self):
+    def test_first_empty_to_synthetic_round_shape_pinned_only_once(self):
         state={};self.assertEqual(observe(EVENT,EMPTY,record(EMPTY),True,state)['status'],'empty')
         body=synthetic_programme();first=observe(EVENT,body,record(body,'2026-10-30T10:30:00Z'),True,state)
-        self.assertTrue(first['firstPublicationDetected']);self.assertEqual(len(first['rounds']),52)
+        self.assertTrue(first['firstPublicationDetected']);self.assertEqual(len(first['rounds']),9)
         self.assertTrue(all('latvianTime' in r for r in first['rounds']))
         pinned=copy.deepcopy(state['firstPublishedProgramme'])
         again=observe(EVENT,body,record(body,'2026-10-30T11:00:00Z'),True,state)
@@ -86,12 +87,12 @@ class ArchiveTests(unittest.TestCase):
             root=Path(td);archive=Archive(root/'archive');state=root/'state';state.mkdir()
             digest=archive.add(EMPTY);self.assertEqual(archive.add(EMPTY),digest)
             self.assertEqual(len(list((root/'archive/raw').rglob('*.gz'))),1)
-            rec={**record(EMPTY),'etag':'captured-etag','firstSeenAt':'2026-10-29T12:53:00Z'}
+            rec={**record(EMPTY),'etag':'synthetic-etag','firstSeenAt':'2026-10-29T12:53:00Z'}
             write(state/'sources.json',{URL:rec});(state/(digest+'.body')).write_bytes(EMPTY)
             archive.persist(state,{'status':'empty','checkedAt':'2026-10-29T13:00:00Z'})
             fresh=root/'fresh';archive.restore(fresh)
             def transport(req,**kw):
-                self.assertEqual(req.get_header('If-none-match'),'captured-etag')
+                self.assertEqual(req.get_header('If-none-match'),'synthetic-etag')
                 raise urllib.error.HTTPError(req.full_url,304,'Not Modified',{},io.BytesIO())
             client=Client(fresh,load(fresh/'sources.json',{}),transport)
             raw,r=client.get(URL);self.assertEqual(raw,EMPTY);self.assertEqual(r['status'],'not-modified')
@@ -208,8 +209,7 @@ class IndependentDrawProbeTests(unittest.TestCase):
 
 class FullMonitorRestartTests(unittest.TestCase):
     def factory(self,state,previous,**kwargs):
-        fixture=ROOT/'fixtures/real/montreal-publication-2026-10-29'
-        records={r['url']:r for r in load(fixture/'manifest.json',{})['sources']}
+        records={url:encode(empty()) if '/getschedule/' in url else event_html(EVENT,1).encode() for url in [EVENT['infoUrl'],EVENT['infoUrl']+'?tab=schedule_16272',EVENT['infoUrl']+'?tab=results_16272',URL]}
         class Response(io.BytesIO):
             status=200
             def __init__(self,body,url,mime):
@@ -217,13 +217,13 @@ class FullMonitorRestartTests(unittest.TestCase):
                 self.headers={'Content-Type':mime,'ETag':hashlib.sha256(body).hexdigest()}
         def transport(req,**kw):
             rec=records.get(req.full_url)
-            if not rec or rec['status']=='unavailable':
+            if rec is None:
                 raise urllib.error.HTTPError(req.full_url,404,'Not Found',{},io.BytesIO(b'{"code":404,"message":"Not Found"}'))
             if req.get_header('If-none-match'):
                 raise urllib.error.HTTPError(req.full_url,304,'Not Modified',{},io.BytesIO())
-            return Response((fixture/rec['file']).read_bytes(),req.full_url,'text/html' if rec['file'].endswith('.html') else 'application/json')
+            return Response(rec,req.full_url,'application/json' if '/getschedule/' in req.full_url else 'text/html')
         return Client(state,previous,transport=transport,**kwargs)
-    def test_two_fresh_runners_preserve_actual_empty_raw_and_prior_state(self):
+    def test_two_fresh_runners_preserve_synthetic_empty_raw_and_prior_state(self):
         with tempfile.TemporaryDirectory() as td:
             t=Path(td);now=datetime(2026,10,29,13,tzinfo=UTC)
             first=run(ROOT,t/'runner1',t/'archive',now,self.factory)
