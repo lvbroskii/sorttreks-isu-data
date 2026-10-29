@@ -1,0 +1,222 @@
+{
+  "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/": [
+    {
+      "url": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/",
+      "finalUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/",
+      "sha256": "7291210aff9c1e8919c94a20550568fdadac232ad5825b34241018efc250d6cb",
+      "fetchedAt": "2026-10-29T14:34:48+00:00",
+      "firstSeenAt": "2026-10-29T14:34:48+00:00",
+      "etag": null,
+      "lastModified": null,
+      "status": "fetched",
+      "error": null,
+      "httpStatus": 200,
+      "errorBodySha256": null,
+      "originalResponseSha256": "b15ace1b20997a7431e498e41466884e8d87009fabee65d6b3403265540b63d4",
+      "originalErrorResponseSha256": null,
+      "credentialsRedacted": true,
+      "changed": true,
+      "method": "GET",
+      "requestUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/",
+      "requestBody": null
+    }
+  ],
+  "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=documents_16272": [
+    {
+      "url": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=documents_16272",
+      "finalUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=documents_16272",
+      "sha256": "01bf5e7795dd31b2942c85cd00033fa208be97f545b6a3e5d8e21b25cc140f2c",
+      "fetchedAt": "2026-10-29T14:34:49+00:00",
+      "firstSeenAt": "2026-10-29T14:34:49+00:00",
+      "etag": null,
+      "lastModified": null,
+      "status": "fetched",
+      "error": null,
+      "httpStatus": 200,
+      "errorBodySha256": null,
+      "originalResponseSha256": "480f202df9ae4c64384967f7c885f778e499d5c6ae0f76cfd3723d47178f8ccc",
+      "originalErrorResponseSha256": null,
+      "credentialsRedacted": true,
+      "changed": true,
+      "method": "GET",
+      "requestUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=documents_16272",
+      "requestBody": null
+    }
+  ],
+  "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=schedule_16272": [
+    {
+      "url": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=schedule_16272",
+      "finalUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=schedule_16272",
+      "sha256": "63143d2d1332b6fedd5345f190b30ed0076207e3659ac49911bc7dca1bad1a99",
+      "fetchedAt": "2026-10-29T14:34:49+00:00",
+      "firstSeenAt": "2026-10-29T14:34:49+00:00",
+      "etag": null,
+      "lastModified": null,
+      "status": "fetched",
+      "error": null,
+      "httpStatus": 200,
+      "errorBodySha256": null,
+      "originalResponseSha256": "b2d8e9328e14ea98dd3c4f966d03bb29c7d9b78b5bf441f1f83855bdcc4a3bfe",
+      "originalErrorResponseSha256": null,
+      "credentialsRedacted": true,
+      "changed": true,
+      "method": "GET",
+      "requestUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=schedule_16272",
+      "requestBody": null
+    }
+  ],
+  "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=entries_16272": [
+    {
+      "url": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=entries_16272",
+      "finalUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=entries_16272",
+      "sha256": "5d587b3ac7e78482ff3a1b4180d7afb5ab2e04e08b16d43f18af2c84e06a77c7",
+      "fetchedAt": "2026-10-29T14:34:50+00:00",
+      "firstSeenAt": "2026-10-29T14:34:50+00:00",
+      "etag": null,
+      "lastModified": null,
+      "status": "fetched",
+      "error": null,
+      "httpStatus": 200,
+      "errorBodySha256": null,
+      "originalResponseSha256": "43c972f621f3b3aa7cf4e96ec96dfabf9fdc60a5b84c37bf7551570e9fbc42d0",
+      "originalErrorResponseSha256": null,
+      "credentialsRedacted": true,
+      "changed": true,
+      "method": "GET",
+      "requestUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=entries_16272",
+      "requestBody": null
+    }
+  ],
+  "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=results_16272": [
+    {
+      "url": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=results_16272",
+      "finalUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=results_16272",
+      "sha256": "46d1511a4be6d69fceb435e6cc60613e40d394337c3df418175938607646d751",
+      "fetchedAt": "2026-10-29T14:34:51+00:00",
+      "firstSeenAt": "2026-10-29T14:34:51+00:00",
+      "etag": null,
+      "lastModified": null,
+      "status": "fetched",
+      "error": null,
+      "httpStatus": 200,
+      "errorBodySha256": null,
+      "originalResponseSha256": "cffaa596dc20182c02b8d9b937b5e0aab33a6fd697b636a6f2d7148af1587842",
+      "originalErrorResponseSha256": null,
+      "credentialsRedacted": true,
+      "changed": true,
+      "method": "GET",
+      "requestUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=results_16272",
+      "requestBody": null
+    }
+  ],
+  "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal": [
+    {
+      "url": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
+      "finalUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
+      "sha256": "c65d6a81ae67b9a7b1e1f03ea0aee815ae27d706c14b5d00f7b5759d361e789d",
+      "fetchedAt": "2026-10-29T14:34:52+00:00",
+      "firstSeenAt": "2026-10-29T14:34:52+00:00",
+      "etag": "W/\"89-/Iph/ggVH+LCL86XhzI87kpVYeE\"",
+      "lastModified": null,
+      "status": "fetched",
+      "error": null,
+      "httpStatus": 200,
+      "errorBodySha256": null,
+      "originalResponseSha256": "c65d6a81ae67b9a7b1e1f03ea0aee815ae27d706c14b5d00f7b5759d361e789d",
+      "originalErrorResponseSha256": null,
+      "credentialsRedacted": false,
+      "changed": true,
+      "method": "GET",
+      "requestUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
+      "requestBody": null
+    }
+  ],
+  "https://front-api.isu.org/events/get-event-result/isu-short-track-world-tour-2-montreal": [
+    {
+      "url": "https://front-api.isu.org/events/get-event-result/isu-short-track-world-tour-2-montreal",
+      "finalUrl": null,
+      "sha256": null,
+      "fetchedAt": "2026-10-29T14:34:52+00:00",
+      "firstSeenAt": null,
+      "etag": null,
+      "lastModified": null,
+      "status": "unavailable",
+      "error": "HTTP 404",
+      "httpStatus": 404,
+      "errorBodySha256": "538169f78667003113493de4800bdc406db5ac368d158d5b193561315e2b4e20",
+      "originalResponseSha256": null,
+      "originalErrorResponseSha256": "538169f78667003113493de4800bdc406db5ac368d158d5b193561315e2b4e20",
+      "credentialsRedacted": null,
+      "changed": false,
+      "method": "GET",
+      "requestUrl": "https://front-api.isu.org/events/get-event-result/isu-short-track-world-tour-2-montreal",
+      "requestBody": null
+    }
+  ],
+  "https://front-api.isu.org/events/get-event-result/results_16272": [
+    {
+      "url": "https://front-api.isu.org/events/get-event-result/results_16272",
+      "finalUrl": null,
+      "sha256": null,
+      "fetchedAt": "2026-10-29T14:34:53+00:00",
+      "firstSeenAt": null,
+      "etag": null,
+      "lastModified": null,
+      "status": "unavailable",
+      "error": "HTTP 404",
+      "httpStatus": 404,
+      "errorBodySha256": "538169f78667003113493de4800bdc406db5ac368d158d5b193561315e2b4e20",
+      "originalResponseSha256": null,
+      "originalErrorResponseSha256": "538169f78667003113493de4800bdc406db5ac368d158d5b193561315e2b4e20",
+      "credentialsRedacted": null,
+      "changed": false,
+      "method": "GET",
+      "requestUrl": "https://front-api.isu.org/events/get-event-result/results_16272",
+      "requestBody": null
+    }
+  ],
+  "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/0d5fd743211bbeb8b56684d641b61ad5623cf7379201378383f1e472f5e79a7d.pdf": [
+    {
+      "url": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/0d5fd743211bbeb8b56684d641b61ad5623cf7379201378383f1e472f5e79a7d.pdf",
+      "finalUrl": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/0d5fd743211bbeb8b56684d641b61ad5623cf7379201378383f1e472f5e79a7d.pdf",
+      "sha256": "0d5fd743211bbeb8b56684d641b61ad5623cf7379201378383f1e472f5e79a7d",
+      "fetchedAt": "2026-10-29T14:34:53+00:00",
+      "firstSeenAt": "2026-10-29T14:34:53+00:00",
+      "etag": "0x8DF10CA93891F34",
+      "lastModified": "Sat, 12 Sep 2026 12:37:15 GMT",
+      "status": "fetched",
+      "error": null,
+      "httpStatus": 200,
+      "errorBodySha256": null,
+      "originalResponseSha256": "0d5fd743211bbeb8b56684d641b61ad5623cf7379201378383f1e472f5e79a7d",
+      "originalErrorResponseSha256": null,
+      "credentialsRedacted": false,
+      "changed": true,
+      "method": "GET",
+      "requestUrl": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/0d5fd743211bbeb8b56684d641b61ad5623cf7379201378383f1e472f5e79a7d.pdf",
+      "requestBody": null
+    }
+  ],
+  "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/ecf91af0c829137ee15c6a3ef30bc04fd36959e82037f19def6320cd934128f0.pdf": [
+    {
+      "url": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/ecf91af0c829137ee15c6a3ef30bc04fd36959e82037f19def6320cd934128f0.pdf",
+      "finalUrl": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/ecf91af0c829137ee15c6a3ef30bc04fd36959e82037f19def6320cd934128f0.pdf",
+      "sha256": "ecf91af0c829137ee15c6a3ef30bc04fd36959e82037f19def6320cd934128f0",
+      "fetchedAt": "2026-10-29T14:34:55+00:00",
+      "firstSeenAt": "2026-10-29T14:34:55+00:00",
+      "etag": "0x8DF3052A5855742",
+      "lastModified": "Thu, 22 Oct 2026 15:39:23 GMT",
+      "status": "fetched",
+      "error": null,
+      "httpStatus": 200,
+      "errorBodySha256": null,
+      "originalResponseSha256": "ecf91af0c829137ee15c6a3ef30bc04fd36959e82037f19def6320cd934128f0",
+      "originalErrorResponseSha256": null,
+      "credentialsRedacted": false,
+      "changed": true,
+      "method": "GET",
+      "requestUrl": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/ecf91af0c829137ee15c6a3ef30bc04fd36959e82037f19def6320cd934128f0.pdf",
+      "requestBody": null
+    }
+  ]
+}

@@ -1,0 +1,501 @@
+{
+  "schemaVersion": 1,
+  "mode": "read-only-montreal-monitor",
+  "checkedAt": "2026-10-29T14:34:48+00:00",
+  "status": "empty",
+  "collectorError": null,
+  "firstPublicationDetected": false,
+  "programmeObservation": {
+    "status": "empty",
+    "firstPublicationDetected": false,
+    "roundChanges": [],
+    "rounds": []
+  },
+  "firstPublishedProgramme": null,
+  "firstStructurallyValidatedProgramme": null,
+  "event": {
+    "event": {
+      "id": "2026-27-wt2",
+      "title": "ISU Short Track World Tour #2",
+      "level": "senior",
+      "startDate": "2026-10-30",
+      "endDate": "2026-11-01",
+      "timeZone": "America/Toronto",
+      "infoUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/"
+    },
+    "verificationStatus": "needs-review",
+    "issues": [
+      "no-complete-identity-matched-schedule",
+      "online-programme-incomplete; supersession-not-established"
+    ],
+    "calendarPatchCandidate": null,
+    "approvedForWebsite": false,
+    "fallback": "bundled-site-reference-retained",
+    "publication": {
+      "eventId": "2026-27-wt2",
+      "stages": {
+        "scheduleTab": {
+          "status": "visible"
+        },
+        "sessions": {
+          "status": "not-verified",
+          "rows": []
+        },
+        "roundTimes": {
+          "status": "unpublished",
+          "rowCount": 0
+        },
+        "athleteDraws": {
+          "Roberts Krūzbergs": {
+            "status": "not-verified",
+            "firstStarts": [],
+            "laterStarts": []
+          },
+          "Reinis Bērziņš": {
+            "status": "not-verified",
+            "firstStarts": [],
+            "laterStarts": []
+          }
+        }
+      },
+      "drawDiscovery": {
+        "source": {
+          "method": "GET",
+          "requestUrl": "https://front-api.isu.org/events/get-event-result/isu-short-track-world-tour-2-montreal",
+          "requestBody": null,
+          "url": "https://front-api.isu.org/events/get-event-result/isu-short-track-world-tour-2-montreal",
+          "fetchedAt": "2026-10-29T14:34:52+00:00",
+          "status": "unavailable",
+          "changed": false,
+          "error": "HTTP 404",
+          "stale": true,
+          "httpStatus": 404,
+          "originalErrorResponseSha256": "538169f78667003113493de4800bdc406db5ac368d158d5b193561315e2b4e20",
+          "errorBodySha256": "538169f78667003113493de4800bdc406db5ac368d158d5b193561315e2b4e20"
+        },
+        "attempts": [
+          {
+            "method": "GET",
+            "requestUrl": "https://front-api.isu.org/events/get-event-result/isu-short-track-world-tour-2-montreal",
+            "requestBody": null,
+            "url": "https://front-api.isu.org/events/get-event-result/isu-short-track-world-tour-2-montreal",
+            "fetchedAt": "2026-10-29T14:34:52+00:00",
+            "status": "unavailable",
+            "changed": false,
+            "error": "HTTP 404",
+            "stale": true,
+            "httpStatus": 404,
+            "originalErrorResponseSha256": "538169f78667003113493de4800bdc406db5ac368d158d5b193561315e2b4e20",
+            "errorBodySha256": "538169f78667003113493de4800bdc406db5ac368d158d5b193561315e2b4e20"
+          },
+          {
+            "method": "GET",
+            "requestUrl": "https://front-api.isu.org/events/get-event-result/results_16272",
+            "requestBody": null,
+            "url": "https://front-api.isu.org/events/get-event-result/results_16272",
+            "fetchedAt": "2026-10-29T14:34:53+00:00",
+            "status": "unavailable",
+            "changed": false,
+            "error": "HTTP 404",
+            "stale": true,
+            "httpStatus": 404,
+            "originalErrorResponseSha256": "538169f78667003113493de4800bdc406db5ac368d158d5b193561315e2b4e20",
+            "errorBodySha256": "538169f78667003113493de4800bdc406db5ac368d158d5b193561315e2b4e20"
+          }
+        ],
+        "resultIds": [],
+        "status": "identifiers-unavailable",
+        "confirmedFirstStarts": false,
+        "reason": "Public result inventory unavailable; heat queries cannot be made without verified event-specific result/round IDs."
+      },
+      "retainVerifiedFallback": true,
+      "approvedForWebsite": false,
+      "notes": [
+        "Session starts/end times are not inferred from the first/last race round.",
+        "Unverified draws do not mean an athlete is absent or withdrawn."
+      ]
+    },
+    "publicationChanges": [
+      {
+        "stage": "scheduleTab",
+        "previous": null,
+        "current": {
+          "status": "visible"
+        }
+      },
+      {
+        "stage": "sessions",
+        "previous": null,
+        "current": {
+          "status": "not-verified",
+          "rows": []
+        }
+      },
+      {
+        "stage": "roundTimes",
+        "previous": null,
+        "current": {
+          "status": "unpublished",
+          "rowCount": 0
+        }
+      },
+      {
+        "stage": "athleteDraws",
+        "previous": null,
+        "current": {
+          "Roberts Krūzbergs": {
+            "status": "not-verified",
+            "firstStarts": [],
+            "laterStarts": []
+          },
+          "Reinis Bērziņš": {
+            "status": "not-verified",
+            "firstStarts": [],
+            "laterStarts": []
+          }
+        }
+      }
+    ],
+    "liveApi": {
+      "programmeSource": {
+        "url": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
+        "finalUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
+        "contentType": "application/json",
+        "sha256": "c65d6a81ae67b9a7b1e1f03ea0aee815ae27d706c14b5d00f7b5759d361e789d",
+        "originalResponseSha256": "c65d6a81ae67b9a7b1e1f03ea0aee815ae27d706c14b5d00f7b5759d361e789d",
+        "credentialsRedacted": false,
+        "fetchedAt": "2026-10-29T14:34:52+00:00",
+        "firstSeenAt": "2026-10-29T14:34:52+00:00",
+        "etag": "W/\"89-/Iph/ggVH+LCL86XhzI87kpVYeE\"",
+        "lastModified": null,
+        "method": "GET",
+        "requestUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
+        "requestBody": null,
+        "changed": true,
+        "status": "fetched",
+        "httpStatus": 200
+      },
+      "scheduleRows": 0,
+      "issues": [
+        "live-api-programme-unpublished"
+      ],
+      "availability": "unpublished",
+      "rounds": [],
+      "completenessScope": "Structural coverage of returned programme groups and unpaginated heat arrays; no independent total-group or total-heat count is provided.",
+      "revisionEvidence": "No schedule-specific revision marker in API; retrieval/import timestamps do not establish supersession.",
+      "drawDiscovery": {
+        "source": {
+          "method": "GET",
+          "requestUrl": "https://front-api.isu.org/events/get-event-result/isu-short-track-world-tour-2-montreal",
+          "requestBody": null,
+          "url": "https://front-api.isu.org/events/get-event-result/isu-short-track-world-tour-2-montreal",
+          "fetchedAt": "2026-10-29T14:34:52+00:00",
+          "status": "unavailable",
+          "changed": false,
+          "error": "HTTP 404",
+          "stale": true,
+          "httpStatus": 404,
+          "originalErrorResponseSha256": "538169f78667003113493de4800bdc406db5ac368d158d5b193561315e2b4e20",
+          "errorBodySha256": "538169f78667003113493de4800bdc406db5ac368d158d5b193561315e2b4e20"
+        },
+        "attempts": [
+          {
+            "method": "GET",
+            "requestUrl": "https://front-api.isu.org/events/get-event-result/isu-short-track-world-tour-2-montreal",
+            "requestBody": null,
+            "url": "https://front-api.isu.org/events/get-event-result/isu-short-track-world-tour-2-montreal",
+            "fetchedAt": "2026-10-29T14:34:52+00:00",
+            "status": "unavailable",
+            "changed": false,
+            "error": "HTTP 404",
+            "stale": true,
+            "httpStatus": 404,
+            "originalErrorResponseSha256": "538169f78667003113493de4800bdc406db5ac368d158d5b193561315e2b4e20",
+            "errorBodySha256": "538169f78667003113493de4800bdc406db5ac368d158d5b193561315e2b4e20"
+          },
+          {
+            "method": "GET",
+            "requestUrl": "https://front-api.isu.org/events/get-event-result/results_16272",
+            "requestBody": null,
+            "url": "https://front-api.isu.org/events/get-event-result/results_16272",
+            "fetchedAt": "2026-10-29T14:34:53+00:00",
+            "status": "unavailable",
+            "changed": false,
+            "error": "HTTP 404",
+            "stale": true,
+            "httpStatus": 404,
+            "originalErrorResponseSha256": "538169f78667003113493de4800bdc406db5ac368d158d5b193561315e2b4e20",
+            "errorBodySha256": "538169f78667003113493de4800bdc406db5ac368d158d5b193561315e2b4e20"
+          }
+        ],
+        "resultIds": [],
+        "status": "identifiers-unavailable",
+        "confirmedFirstStarts": false,
+        "reason": "Public result inventory unavailable; heat queries cannot be made without verified event-specific result/round IDs."
+      }
+    },
+    "scheduleAuthority": {
+      "status": "unavailable",
+      "reason": "no-complete-identity-matched-schedule",
+      "conflicts": [],
+      "retainedPrevious": false,
+      "stale": false,
+      "sourceChanges": [
+        {
+          "source": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=schedule_16272",
+          "previousVersionId": null,
+          "versionId": "8b46e65983ce96dd160f7330d7d7f7b3fb2c9850866c133e0ed97f640254ed37",
+          "rawChanged": true,
+          "scheduleChanged": true,
+          "changes": []
+        },
+        {
+          "source": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
+          "previousVersionId": null,
+          "versionId": "fc02f4c1a1bb0855462c31f169e36ee20af648d940cfcc659a42bb6acade7476",
+          "rawChanged": true,
+          "scheduleChanged": true,
+          "changes": []
+        }
+      ],
+      "selectedChanges": [],
+      "selectedVersionId": null,
+      "selectedSource": null
+    },
+    "scheduleVersions": [
+      {
+        "versionId": "8b46e65983ce96dd160f7330d7d7f7b3fb2c9850866c133e0ed97f640254ed37",
+        "eventId": "2026-27-wt2",
+        "kind": "online",
+        "url": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=schedule_16272",
+        "timeZone": "America/Toronto",
+        "rawSha256": "63143d2d1332b6fedd5345f190b30ed0076207e3659ac49911bc7dca1bad1a99",
+        "retrievedAt": "2026-10-29T14:34:49+00:00",
+        "revision": {},
+        "semanticHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "complete": false,
+        "issues": [
+          "online-completeness-unverified",
+          "online-programme-shell-or-unsupported-format"
+        ],
+        "identityVerified": true
+      },
+      {
+        "versionId": "fc02f4c1a1bb0855462c31f169e36ee20af648d940cfcc659a42bb6acade7476",
+        "eventId": "2026-27-wt2",
+        "kind": "online",
+        "url": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
+        "timeZone": "America/Toronto",
+        "rawSha256": "c65d6a81ae67b9a7b1e1f03ea0aee815ae27d706c14b5d00f7b5759d361e789d",
+        "retrievedAt": "2026-10-29T14:34:52+00:00",
+        "revision": {},
+        "semanticHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "complete": false,
+        "issues": [
+          "live-api-programme-unpublished"
+        ],
+        "identityVerified": true
+      }
+    ],
+    "discovery": {
+      "tabs": {
+        "schedule": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=schedule_16272",
+        "entries": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=entries_16272",
+        "result": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=results_16272",
+        "documents": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=documents_16272"
+      },
+      "documents": [
+        {
+          "url": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/0d5fd743211bbeb8b56684d641b61ad5623cf7379201378383f1e472f5e79a7d.pdf",
+          "label": "Announcement",
+          "publishedDate": "2026-09-12",
+          "textStatus": "extracted"
+        },
+        {
+          "url": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/ecf91af0c829137ee15c6a3ef30bc04fd36959e82037f19def6320cd934128f0.pdf",
+          "label": "Entries",
+          "publishedDate": "2026-10-22",
+          "textStatus": "extracted"
+        }
+      ],
+      "identityVerified": true,
+      "programmeShellDetected": true
+    }
+  },
+  "sources": {
+    "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/": {
+      "url": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/",
+      "finalUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/",
+      "contentType": "text/html",
+      "sha256": "7291210aff9c1e8919c94a20550568fdadac232ad5825b34241018efc250d6cb",
+      "originalResponseSha256": "b15ace1b20997a7431e498e41466884e8d87009fabee65d6b3403265540b63d4",
+      "credentialsRedacted": true,
+      "fetchedAt": "2026-10-29T14:34:48+00:00",
+      "firstSeenAt": "2026-10-29T14:34:48+00:00",
+      "etag": null,
+      "lastModified": null,
+      "method": "GET",
+      "requestUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/",
+      "requestBody": null,
+      "changed": true,
+      "status": "fetched",
+      "httpStatus": 200
+    },
+    "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=documents_16272": {
+      "url": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=documents_16272",
+      "finalUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=documents_16272",
+      "contentType": "text/html",
+      "sha256": "01bf5e7795dd31b2942c85cd00033fa208be97f545b6a3e5d8e21b25cc140f2c",
+      "originalResponseSha256": "480f202df9ae4c64384967f7c885f778e499d5c6ae0f76cfd3723d47178f8ccc",
+      "credentialsRedacted": true,
+      "fetchedAt": "2026-10-29T14:34:49+00:00",
+      "firstSeenAt": "2026-10-29T14:34:49+00:00",
+      "etag": null,
+      "lastModified": null,
+      "method": "GET",
+      "requestUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=documents_16272",
+      "requestBody": null,
+      "changed": true,
+      "status": "fetched",
+      "httpStatus": 200
+    },
+    "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=schedule_16272": {
+      "url": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=schedule_16272",
+      "finalUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=schedule_16272",
+      "contentType": "text/html",
+      "sha256": "63143d2d1332b6fedd5345f190b30ed0076207e3659ac49911bc7dca1bad1a99",
+      "originalResponseSha256": "b2d8e9328e14ea98dd3c4f966d03bb29c7d9b78b5bf441f1f83855bdcc4a3bfe",
+      "credentialsRedacted": true,
+      "fetchedAt": "2026-10-29T14:34:49+00:00",
+      "firstSeenAt": "2026-10-29T14:34:49+00:00",
+      "etag": null,
+      "lastModified": null,
+      "method": "GET",
+      "requestUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=schedule_16272",
+      "requestBody": null,
+      "changed": true,
+      "status": "fetched",
+      "httpStatus": 200
+    },
+    "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=entries_16272": {
+      "url": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=entries_16272",
+      "finalUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=entries_16272",
+      "contentType": "text/html",
+      "sha256": "5d587b3ac7e78482ff3a1b4180d7afb5ab2e04e08b16d43f18af2c84e06a77c7",
+      "originalResponseSha256": "43c972f621f3b3aa7cf4e96ec96dfabf9fdc60a5b84c37bf7551570e9fbc42d0",
+      "credentialsRedacted": true,
+      "fetchedAt": "2026-10-29T14:34:50+00:00",
+      "firstSeenAt": "2026-10-29T14:34:50+00:00",
+      "etag": null,
+      "lastModified": null,
+      "method": "GET",
+      "requestUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=entries_16272",
+      "requestBody": null,
+      "changed": true,
+      "status": "fetched",
+      "httpStatus": 200
+    },
+    "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=results_16272": {
+      "url": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=results_16272",
+      "finalUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=results_16272",
+      "contentType": "text/html",
+      "sha256": "46d1511a4be6d69fceb435e6cc60613e40d394337c3df418175938607646d751",
+      "originalResponseSha256": "cffaa596dc20182c02b8d9b937b5e0aab33a6fd697b636a6f2d7148af1587842",
+      "credentialsRedacted": true,
+      "fetchedAt": "2026-10-29T14:34:51+00:00",
+      "firstSeenAt": "2026-10-29T14:34:51+00:00",
+      "etag": null,
+      "lastModified": null,
+      "method": "GET",
+      "requestUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=results_16272",
+      "requestBody": null,
+      "changed": true,
+      "status": "fetched",
+      "httpStatus": 200
+    },
+    "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal": {
+      "url": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
+      "finalUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
+      "contentType": "application/json",
+      "sha256": "c65d6a81ae67b9a7b1e1f03ea0aee815ae27d706c14b5d00f7b5759d361e789d",
+      "originalResponseSha256": "c65d6a81ae67b9a7b1e1f03ea0aee815ae27d706c14b5d00f7b5759d361e789d",
+      "credentialsRedacted": false,
+      "fetchedAt": "2026-10-29T14:34:52+00:00",
+      "firstSeenAt": "2026-10-29T14:34:52+00:00",
+      "etag": "W/\"89-/Iph/ggVH+LCL86XhzI87kpVYeE\"",
+      "lastModified": null,
+      "method": "GET",
+      "requestUrl": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
+      "requestBody": null,
+      "changed": true,
+      "status": "fetched",
+      "httpStatus": 200
+    },
+    "https://front-api.isu.org/events/get-event-result/isu-short-track-world-tour-2-montreal": {
+      "method": "GET",
+      "requestUrl": "https://front-api.isu.org/events/get-event-result/isu-short-track-world-tour-2-montreal",
+      "requestBody": null,
+      "url": "https://front-api.isu.org/events/get-event-result/isu-short-track-world-tour-2-montreal",
+      "fetchedAt": "2026-10-29T14:34:52+00:00",
+      "status": "unavailable",
+      "changed": false,
+      "error": "HTTP 404",
+      "stale": true,
+      "httpStatus": 404,
+      "originalErrorResponseSha256": "538169f78667003113493de4800bdc406db5ac368d158d5b193561315e2b4e20",
+      "errorBodySha256": "538169f78667003113493de4800bdc406db5ac368d158d5b193561315e2b4e20"
+    },
+    "https://front-api.isu.org/events/get-event-result/results_16272": {
+      "method": "GET",
+      "requestUrl": "https://front-api.isu.org/events/get-event-result/results_16272",
+      "requestBody": null,
+      "url": "https://front-api.isu.org/events/get-event-result/results_16272",
+      "fetchedAt": "2026-10-29T14:34:53+00:00",
+      "status": "unavailable",
+      "changed": false,
+      "error": "HTTP 404",
+      "stale": true,
+      "httpStatus": 404,
+      "originalErrorResponseSha256": "538169f78667003113493de4800bdc406db5ac368d158d5b193561315e2b4e20",
+      "errorBodySha256": "538169f78667003113493de4800bdc406db5ac368d158d5b193561315e2b4e20"
+    },
+    "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/0d5fd743211bbeb8b56684d641b61ad5623cf7379201378383f1e472f5e79a7d.pdf": {
+      "url": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/0d5fd743211bbeb8b56684d641b61ad5623cf7379201378383f1e472f5e79a7d.pdf",
+      "finalUrl": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/0d5fd743211bbeb8b56684d641b61ad5623cf7379201378383f1e472f5e79a7d.pdf",
+      "contentType": "application/pdf",
+      "sha256": "0d5fd743211bbeb8b56684d641b61ad5623cf7379201378383f1e472f5e79a7d",
+      "originalResponseSha256": "0d5fd743211bbeb8b56684d641b61ad5623cf7379201378383f1e472f5e79a7d",
+      "credentialsRedacted": false,
+      "fetchedAt": "2026-10-29T14:34:53+00:00",
+      "firstSeenAt": "2026-10-29T14:34:53+00:00",
+      "etag": "0x8DF10CA93891F34",
+      "lastModified": "Sat, 12 Sep 2026 12:37:15 GMT",
+      "method": "GET",
+      "requestUrl": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/0d5fd743211bbeb8b56684d641b61ad5623cf7379201378383f1e472f5e79a7d.pdf",
+      "requestBody": null,
+      "changed": true,
+      "status": "fetched",
+      "httpStatus": 200
+    },
+    "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/ecf91af0c829137ee15c6a3ef30bc04fd36959e82037f19def6320cd934128f0.pdf": {
+      "url": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/ecf91af0c829137ee15c6a3ef30bc04fd36959e82037f19def6320cd934128f0.pdf",
+      "finalUrl": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/ecf91af0c829137ee15c6a3ef30bc04fd36959e82037f19def6320cd934128f0.pdf",
+      "contentType": "application/pdf",
+      "sha256": "ecf91af0c829137ee15c6a3ef30bc04fd36959e82037f19def6320cd934128f0",
+      "originalResponseSha256": "ecf91af0c829137ee15c6a3ef30bc04fd36959e82037f19def6320cd934128f0",
+      "credentialsRedacted": false,
+      "fetchedAt": "2026-10-29T14:34:55+00:00",
+      "firstSeenAt": "2026-10-29T14:34:55+00:00",
+      "etag": "0x8DF3052A5855742",
+      "lastModified": "Thu, 22 Oct 2026 15:39:23 GMT",
+      "method": "GET",
+      "requestUrl": "https://isu-d8g8b4b7ece7aphs.a03.azurefd.net/isudamcontainer/uploads/isunewrevamp/document/original/ecf91af0c829137ee15c6a3ef30bc04fd36959e82037f19def6320cd934128f0.pdf",
+      "requestBody": null,
+      "changed": true,
+      "status": "fetched",
+      "httpStatus": 200
+    }
+  },
+  "approvedForWebsite": false,
+  "fallback": "existing verified data retained; no website writes"
+}

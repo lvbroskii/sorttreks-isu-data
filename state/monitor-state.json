@@ -1,0 +1,15 @@
+{
+  "eventId": "2026-27-wt2",
+  "firstEmptyEvidence": {
+    "sha256": "c65d6a81ae67b9a7b1e1f03ea0aee815ae27d706c14b5d00f7b5759d361e789d",
+    "retrievedAt": "2026-10-29T14:34:52+00:00",
+    "url": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal"
+  },
+  "emptyEvidence": {
+    "sha256": "c65d6a81ae67b9a7b1e1f03ea0aee815ae27d706c14b5d00f7b5759d361e789d",
+    "retrievedAt": "2026-10-29T14:34:52+00:00",
+    "url": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal"
+  },
+  "lastProgrammeState": "empty",
+  "lastCheckAt": "2026-10-29T14:34:48+00:00"
+}
