@@ -1,6 +1,15 @@
+> **Setup incomplete:** captured-source fixtures are not uploaded yet. Keep `ENABLE_PILOT` unset. Tests and monitoring are not ready to run until those fixtures are approved and added.
+
 # sorttreks.lv ISU data pilot
 
 Working read-only collector, separate from the ChatGPT Sites website. Initial implementation based on `sorttreks-isu-automation-feasibility-2026-10-20.md` (20 October assessment). No Sites publication, Cloudflare deployment, paid service, remote database, or scheduled task was activated.
+
+## Public upload security - v0.4.1
+
+Use this version for public GitHub uploads. Embedded credential values in ISU HTML
+captures are redacted, with original-response hashes retained. Future captures
+are sanitized before persistence; timing data is preserved. See
+[public capture security](docs/PUBLIC-CAPTURE-SECURITY.md).
 
 ## Montreal monitoring preparation - v0.4
 

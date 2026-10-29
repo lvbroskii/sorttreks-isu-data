@@ -1,0 +1,38 @@
+[
+  {
+    "id": "2026-27-wt1",
+    "title": "ISU Short Track World Tour #1",
+    "level": "senior",
+    "startDate": "2026-10-23",
+    "endDate": "2026-10-25",
+    "timeZone": "America/Vancouver",
+    "infoUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-1/"
+  },
+  {
+    "id": "2026-27-wt2",
+    "title": "ISU Short Track World Tour #2",
+    "level": "senior",
+    "startDate": "2026-10-30",
+    "endDate": "2026-11-01",
+    "timeZone": "America/Toronto",
+    "infoUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/"
+  },
+  {
+    "id": "2026-27-jwc1",
+    "title": "ISU Short Track Junior World Cup #1",
+    "level": "junior",
+    "startDate": "2026-11-06",
+    "endDate": "2026-11-08",
+    "timeZone": "Europe/Rome",
+    "infoUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-junior-world-cup-1/"
+  },
+  {
+    "id": "2026-27-jwc2",
+    "title": "ISU Short Track Junior World Cup #2",
+    "level": "junior",
+    "startDate": "2026-11-12",
+    "endDate": "2026-11-14",
+    "timeZone": "Europe/Rome",
+    "infoUrl": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-junior-world-cup-2/"
+  }
+]

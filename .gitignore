@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+.state/
+out/
+node_modules/
+.wrangler/
+.env
+.dev.vars
+
+.archive/
+.archive-*/

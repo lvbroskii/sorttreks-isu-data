@@ -1,0 +1,12 @@
+{
+  "name": "sorttreks-isu-data-pilot",
+  "main": "index.mjs",
+  "compatibility_date": "2026-10-29",
+  "workers_dev": true,
+  "vars": { "SERVE_APPROVED": "false" },
+  "d1_databases": [{
+    "binding": "DB",
+    "database_name": "sorttreks-isu-pilot",
+    "database_id": "REPLACE_WITH_ID_RETURNED_BY_D1_CREATE"
+  }]
+}

@@ -1,0 +1,83 @@
+name: Read-only ISU pilot
+on:
+  workflow_dispatch:
+  schedule:
+    # UTC wakeups for this finite Montreal campaign. Python also checks year/end time.
+    - cron: '17,47 * 29-31 10 *'
+    - cron: '17,47 * 1-2 11 *'
+permissions:
+  contents: read
+concurrency:
+  group: isu-read-only-pilot
+  cancel-in-progress: false
+jobs:
+  collect:
+    # Refuse paid private-repository compute; never run another source branch.
+    if: github.event.repository.private == false && vars.ENABLE_PILOT == 'true' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write # Isolated pilot-data branch only in the push command below.
+    env:
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Load complete evidence branch (fail closed on fetch errors)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GIT_ASKPASS: ${{ github.workspace }}/scripts/git-askpass.sh
+          GIT_TERMINAL_PROMPT: '0'
+        run: bash scripts/data-branch.sh load /tmp/pilot-data "https://github.com/${GITHUB_REPOSITORY}.git"
+      - name: Plan finite 30-minute Montreal campaign
+        id: plan
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          from datetime import datetime, timezone
+          from isu_pilot.archive import Archive,load
+          from isu_pilot.monitor import plan
+          Archive('/tmp/pilot-data').restore('.state')
+          decision=plan(load('config/monitoring.json',{}),load('.state/monitor-state.json',{}),datetime.now(timezone.utc))
+          print('decision='+decision)
+          PY
+      - name: Tests and archived-source validation
+        if: steps.plan.outputs.decision == 'due'
+        run: |
+          python3 -m unittest discover -s tests -v
+          node --test tests/worker.test.mjs
+          python3 -m isu_pilot api-sample --out out/sample
+      - name: Ensure free PDF fallback tool
+        if: steps.plan.outputs.decision == 'due'
+        run: |
+          if ! command -v pdftotext >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y --no-install-recommends poppler-utils
+          fi
+      - name: Collect and archive one read-only observation
+        if: steps.plan.outputs.decision == 'due'
+        id: monitor
+        timeout-minutes: 8
+        run: python3 -m isu_pilot monitor --state .state --archive /tmp/pilot-data --out out/monitor
+      - name: Show result (no emails, issues, artifacts or caches)
+        if: always()
+        run: |
+          if [ -f out/monitor/summary.md ]; then
+            cat out/monitor/summary.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            printf '%s\n' 'Monitoring was skipped or failed before collection; inspect the preceding steps.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Checkpoint partial state after interrupted collection
+        if: always() && steps.monitor.outcome != 'skipped' && steps.monitor.outcome != ''
+        run: |
+          python3 - <<'PY'
+          from isu_pilot.archive import Archive
+          Archive('/tmp/pilot-data').checkpoint('.state')
+          PY
+      - name: Persist evidence even after a collector error
+        if: always() && steps.monitor.outcome != 'skipped' && steps.monitor.outcome != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GIT_ASKPASS: ${{ github.workspace }}/scripts/git-askpass.sh
+          GIT_TERMINAL_PROMPT: '0'
+        run: bash scripts/data-branch.sh save /tmp/pilot-data "https://github.com/${GITHUB_REPOSITORY}.git"

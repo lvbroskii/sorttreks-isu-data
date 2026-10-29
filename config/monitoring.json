@@ -1,0 +1,10 @@
+{
+  "eventId": "2026-27-wt2",
+  "startsAt": "2026-10-29T00:00:00Z",
+  "endsAt": "2026-11-02T18:00:00Z",
+  "intervalMinutes": 30,
+  "archiveLimitMiB": 256,
+  "reserveMiB": 48,
+  "runDownloadLimitMiB": 32,
+  "baselineManifest": "fixtures/real/montreal-publication-2026-10-29/manifest.json"
+}
