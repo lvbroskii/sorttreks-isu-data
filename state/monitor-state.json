@@ -11,7 +11,7 @@
     "url": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal"
   },
   "lastProgrammeState": "populated-round-data",
-  "lastCheckAt": "2026-10-30T14:07:07+00:00",
+  "lastCheckAt": "2026-10-30T19:21:19+00:00",
   "firstPublishedProgramme": {
     "sha256": "6b461154157f03e01b89925fe8cfda64ee03cb9c46df64fdd171ce08699b2186",
     "retrievedAt": "2026-10-29T21:01:32+00:00",
@@ -27,15 +27,15 @@
     "observationKind": "empty-to-populated"
   },
   "lastProgrammeVersion": {
-    "versionId": "d095abc31521717a15da7232b22307bbabb2b8b100120d5059238f3ecefb179e",
+    "versionId": "0e0e8d6676c213d27eed149c24521515fe76fac33e3fcce32140222c205db6d1",
     "eventId": "2026-27-wt2",
     "kind": "online",
     "url": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
     "timeZone": "America/Toronto",
-    "rawSha256": "2efb4fa320c119d3c3aff018a291ead7447d2d3090f670fe30b50285fd85241d",
-    "retrievedAt": "2026-10-30T14:07:13+00:00",
+    "rawSha256": "01fff1ea4efce6a0e9743c5e7d572522c2dbe81ca2d48a92f96dd9ea81f24c66",
+    "retrievedAt": "2026-10-30T19:21:22+00:00",
     "revision": {},
-    "semanticHash": "cc9e1be62b820671e247cfff012c91f237c152cf716f14b6a0f8a08dc73fd61d",
+    "semanticHash": "9d0398bb63340f07a0216cef05f11cd4387ea5391699b52046b56289fb4e3cbc",
     "rows": [
       {
         "kind": "race",
@@ -59,8 +59,8 @@
       {
         "kind": "race",
         "date": "2026-10-30",
-        "startsAt": "2026-10-30T09:19:00-04:00",
-        "localTime": "09:19",
+        "startsAt": "2026-10-30T09:18:00-04:00",
+        "localTime": "09:18",
         "gender": "men",
         "distance": 500,
         "discipline": "individual",
@@ -73,7 +73,7 @@
         "timeBasis": "round-start",
         "eventResultId": 16034,
         "eventResultRoundId": 22924,
-        "apiUtcStart": "2026-10-30T13:19:00.000Z"
+        "apiUtcStart": "2026-10-30T13:18:00.000Z"
       },
       {
         "kind": "race",
@@ -154,8 +154,8 @@
       {
         "kind": "race",
         "date": "2026-10-30",
-        "startsAt": "2026-10-30T13:39:00-04:00",
-        "localTime": "13:39",
+        "startsAt": "2026-10-30T13:44:00-04:00",
+        "localTime": "13:44",
         "gender": "men",
         "distance": 500,
         "discipline": "individual",
@@ -168,13 +168,13 @@
         "timeBasis": "round-start",
         "eventResultId": 16034,
         "eventResultRoundId": 22926,
-        "apiUtcStart": "2026-10-30T17:39:00.000Z"
+        "apiUtcStart": "2026-10-30T17:44:00.000Z"
       },
       {
         "kind": "race",
         "date": "2026-10-30",
-        "startsAt": "2026-10-30T14:18:00-04:00",
-        "localTime": "14:18",
+        "startsAt": "2026-10-30T14:19:00-04:00",
+        "localTime": "14:19",
         "gender": "women",
         "distance": 1000,
         "discipline": "individual",
@@ -187,13 +187,13 @@
         "timeBasis": "round-start",
         "eventResultId": 16037,
         "eventResultRoundId": 22933,
-        "apiUtcStart": "2026-10-30T18:18:00.000Z"
+        "apiUtcStart": "2026-10-30T18:19:00.000Z"
       },
       {
         "kind": "race",
         "date": "2026-10-30",
-        "startsAt": "2026-10-30T14:50:00-04:00",
-        "localTime": "14:50",
+        "startsAt": "2026-10-30T14:51:00-04:00",
+        "localTime": "14:51",
         "gender": "men",
         "distance": 1000,
         "discipline": "individual",
@@ -206,7 +206,7 @@
         "timeBasis": "round-start",
         "eventResultId": 16039,
         "eventResultRoundId": 22941,
-        "apiUtcStart": "2026-10-30T18:50:00.000Z"
+        "apiUtcStart": "2026-10-30T18:51:00.000Z"
       },
       {
         "kind": "race",
@@ -287,8 +287,8 @@
       {
         "kind": "race",
         "date": "2026-10-31",
-        "startsAt": "2026-10-31T08:45:00-04:00",
-        "localTime": "08:45",
+        "startsAt": "2026-10-31T09:00:00-04:00",
+        "localTime": "09:00",
         "gender": "men",
         "distance": 500,
         "discipline": "individual",
@@ -301,13 +301,13 @@
         "timeBasis": "round-start",
         "eventResultId": 16034,
         "eventResultRoundId": 22925,
-        "apiUtcStart": "2026-10-31T12:45:00.000Z"
+        "apiUtcStart": "2026-10-31T13:00:00.000Z"
       },
       {
         "kind": "race",
         "date": "2026-10-31",
-        "startsAt": "2026-10-31T09:15:00-04:00",
-        "localTime": "09:15",
+        "startsAt": "2026-10-31T09:25:00-04:00",
+        "localTime": "09:25",
         "gender": "men",
         "distance": 1500,
         "discipline": "individual",
@@ -320,13 +320,13 @@
         "timeBasis": "round-start",
         "eventResultId": 16041,
         "eventResultRoundId": 22948,
-        "apiUtcStart": "2026-10-31T13:15:00.000Z"
+        "apiUtcStart": "2026-10-31T13:25:00.000Z"
       },
       {
         "kind": "race",
         "date": "2026-10-31",
-        "startsAt": "2026-10-31T09:50:00-04:00",
-        "localTime": "09:50",
+        "startsAt": "2026-10-31T10:00:00-04:00",
+        "localTime": "10:00",
         "gender": "men",
         "distance": 500,
         "discipline": "individual",
@@ -339,13 +339,13 @@
         "timeBasis": "round-start",
         "eventResultId": 16034,
         "eventResultRoundId": 22927,
-        "apiUtcStart": "2026-10-31T13:50:00.000Z"
+        "apiUtcStart": "2026-10-31T14:00:00.000Z"
       },
       {
         "kind": "race",
         "date": "2026-10-31",
-        "startsAt": "2026-10-31T10:08:00-04:00",
-        "localTime": "10:08",
+        "startsAt": "2026-10-31T10:18:00-04:00",
+        "localTime": "10:18",
         "gender": "women",
         "distance": 1000,
         "discipline": "individual",
@@ -358,13 +358,13 @@
         "timeBasis": "round-start",
         "eventResultId": 16037,
         "eventResultRoundId": 22934,
-        "apiUtcStart": "2026-10-31T14:08:00.000Z"
+        "apiUtcStart": "2026-10-31T14:18:00.000Z"
       },
       {
         "kind": "race",
         "date": "2026-10-31",
-        "startsAt": "2026-10-31T10:32:00-04:00",
-        "localTime": "10:32",
+        "startsAt": "2026-10-31T10:42:00-04:00",
+        "localTime": "10:42",
         "gender": "men",
         "distance": 500,
         "discipline": "individual",
@@ -377,13 +377,13 @@
         "timeBasis": "round-start",
         "eventResultId": 16034,
         "eventResultRoundId": 22928,
-        "apiUtcStart": "2026-10-31T14:32:00.000Z"
+        "apiUtcStart": "2026-10-31T14:42:00.000Z"
       },
       {
         "kind": "race",
         "date": "2026-10-31",
-        "startsAt": "2026-10-31T10:53:00-04:00",
-        "localTime": "10:53",
+        "startsAt": "2026-10-31T11:03:00-04:00",
+        "localTime": "11:03",
         "gender": "men",
         "distance": 1500,
         "discipline": "individual",
@@ -396,13 +396,13 @@
         "timeBasis": "round-start",
         "eventResultId": 16041,
         "eventResultRoundId": 22950,
-        "apiUtcStart": "2026-10-31T14:53:00.000Z"
+        "apiUtcStart": "2026-10-31T15:03:00.000Z"
       },
       {
         "kind": "race",
         "date": "2026-10-31",
-        "startsAt": "2026-10-31T11:18:00-04:00",
-        "localTime": "11:18",
+        "startsAt": "2026-10-31T11:28:00-04:00",
+        "localTime": "11:28",
         "gender": "women",
         "distance": 1000,
         "discipline": "individual",
@@ -415,13 +415,13 @@
         "timeBasis": "round-start",
         "eventResultId": 16037,
         "eventResultRoundId": 22935,
-        "apiUtcStart": "2026-10-31T15:18:00.000Z"
+        "apiUtcStart": "2026-10-31T15:28:00.000Z"
       },
       {
         "kind": "race",
         "date": "2026-10-31",
-        "startsAt": "2026-10-31T11:33:00-04:00",
-        "localTime": "11:33",
+        "startsAt": "2026-10-31T11:43:00-04:00",
+        "localTime": "11:43",
         "gender": "men",
         "distance": 1500,
         "discipline": "individual",
@@ -434,13 +434,13 @@
         "timeBasis": "round-start",
         "eventResultId": 16041,
         "eventResultRoundId": 22951,
-        "apiUtcStart": "2026-10-31T15:33:00.000Z"
+        "apiUtcStart": "2026-10-31T15:43:00.000Z"
       },
       {
         "kind": "race",
         "date": "2026-10-31",
-        "startsAt": "2026-10-31T12:03:00-04:00",
-        "localTime": "12:03",
+        "startsAt": "2026-10-31T12:13:00-04:00",
+        "localTime": "12:13",
         "gender": "mixed",
         "distance": 2000,
         "discipline": "relay",
@@ -453,7 +453,7 @@
         "timeBasis": "round-start",
         "eventResultId": 16033,
         "eventResultRoundId": 22960,
-        "apiUtcStart": "2026-10-31T16:03:00.000Z"
+        "apiUtcStart": "2026-10-31T16:13:00.000Z"
       },
       {
         "kind": "race",
