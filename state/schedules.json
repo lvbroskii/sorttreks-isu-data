@@ -38,6 +38,24 @@
             "online-programme-shell-or-unsupported-format"
           ],
           "identityVerified": true
+        },
+        {
+          "versionId": "8b46e65983ce96dd160f7330d7d7f7b3fb2c9850866c133e0ed97f640254ed37",
+          "eventId": "2026-27-wt2",
+          "kind": "online",
+          "url": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=schedule_16272",
+          "timeZone": "America/Toronto",
+          "rawSha256": "7063dc226876ab5885727b36363bc1a7d6b71f385d29703bb05157bb4a2a17a9",
+          "retrievedAt": "2026-10-30T00:58:37+00:00",
+          "revision": {},
+          "semanticHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "rows": [],
+          "complete": false,
+          "issues": [
+            "online-completeness-unverified",
+            "online-programme-shell-or-unsupported-format"
+          ],
+          "identityVerified": true
         }
       ],
       "checks": [
@@ -53,6 +71,15 @@
         {
           "retrievedAt": "2026-10-29T21:01:30+00:00",
           "rawSha256": "8f6fde3bd1ba9307911f07fcd5c5901011b44876224480e093bd8ce32ccf4a17",
+          "versionId": "8b46e65983ce96dd160f7330d7d7f7b3fb2c9850866c133e0ed97f640254ed37",
+          "complete": false,
+          "rawChanged": true,
+          "scheduleChanged": false,
+          "changes": []
+        },
+        {
+          "retrievedAt": "2026-10-30T00:58:37+00:00",
+          "rawSha256": "7063dc226876ab5885727b36363bc1a7d6b71f385d29703bb05157bb4a2a17a9",
           "versionId": "8b46e65983ce96dd160f7330d7d7f7b3fb2c9850866c133e0ed97f640254ed37",
           "complete": false,
           "rawChanged": true,
@@ -1851,6 +1878,15 @@
               "source": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal"
             }
           ]
+        },
+        {
+          "retrievedAt": "2026-10-30T00:58:40+00:00",
+          "rawSha256": "6b461154157f03e01b89925fe8cfda64ee03cb9c46df64fdd171ce08699b2186",
+          "versionId": "406ff45f274d1ad0591934190bdc20bc4a82f60f9548cda91d13cefdd3f13505",
+          "complete": true,
+          "rawChanged": false,
+          "scheduleChanged": false,
+          "changes": []
         }
       ],
       "prunedVersions": 0
@@ -1865,7 +1901,7 @@
         "url": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
         "timeZone": "America/Toronto",
         "rawSha256": "6b461154157f03e01b89925fe8cfda64ee03cb9c46df64fdd171ce08699b2186",
-        "retrievedAt": "2026-10-29T21:01:32+00:00",
+        "retrievedAt": "2026-10-30T00:58:40+00:00",
         "revision": {},
         "semanticHash": "2d6f9334e842c27ed6cf6be9943f2bc40abee3c922d6b7d62c2b8f469d152f93",
         "rows": [
@@ -2920,19 +2956,7 @@
             "Unverified draws do not mean an athlete is absent or withdrawn."
           ]
         },
-        "publicationChanges": [
-          {
-            "stage": "roundTimes",
-            "previous": {
-              "status": "unpublished",
-              "rowCount": 0
-            },
-            "current": {
-              "status": "published",
-              "rowCount": 51
-            }
-          }
-        ],
+        "publicationChanges": [],
         "schedule": [
           {
             "kind": "race",
