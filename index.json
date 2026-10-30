@@ -24,6 +24,12 @@
       "file": "checks/2026-10-30/2026-10-30T07-05-23+00-00-f4029cf5bab2.json.gz",
       "status": "populated-round-data",
       "firstPublication": false
+    },
+    {
+      "checkedAt": "2026-10-30T14:07:07+00:00",
+      "file": "checks/2026-10-30/2026-10-30T14-07-07+00-00-71de98f4afac.json.gz",
+      "status": "populated-round-data",
+      "firstPublication": false
     }
   ]
 }
