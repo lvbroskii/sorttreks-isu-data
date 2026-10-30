@@ -11,7 +11,7 @@
     "url": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal"
   },
   "lastProgrammeState": "populated-round-data",
-  "lastCheckAt": "2026-10-30T00:58:34+00:00",
+  "lastCheckAt": "2026-10-30T07:05:23+00:00",
   "firstPublishedProgramme": {
     "sha256": "6b461154157f03e01b89925fe8cfda64ee03cb9c46df64fdd171ce08699b2186",
     "retrievedAt": "2026-10-29T21:01:32+00:00",
@@ -33,7 +33,7 @@
     "url": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
     "timeZone": "America/Toronto",
     "rawSha256": "6b461154157f03e01b89925fe8cfda64ee03cb9c46df64fdd171ce08699b2186",
-    "retrievedAt": "2026-10-30T00:58:40+00:00",
+    "retrievedAt": "2026-10-30T07:05:28+00:00",
     "revision": {},
     "semanticHash": "2d6f9334e842c27ed6cf6be9943f2bc40abee3c922d6b7d62c2b8f469d152f93",
     "rows": [
