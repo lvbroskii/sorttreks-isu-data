@@ -128,6 +128,24 @@
             "online-programme-shell-or-unsupported-format"
           ],
           "identityVerified": true
+        },
+        {
+          "versionId": "8b46e65983ce96dd160f7330d7d7f7b3fb2c9850866c133e0ed97f640254ed37",
+          "eventId": "2026-27-wt2",
+          "kind": "online",
+          "url": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=schedule_16272",
+          "timeZone": "America/Toronto",
+          "rawSha256": "30d48358b8c4b0c33b00fbb0bcbe6defcb2b9a1bce9a6a40a25752302cd40654",
+          "retrievedAt": "2026-10-31T02:25:24+00:00",
+          "revision": {},
+          "semanticHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "rows": [],
+          "complete": false,
+          "issues": [
+            "online-completeness-unverified",
+            "online-programme-shell-or-unsupported-format"
+          ],
+          "identityVerified": true
         }
       ],
       "checks": [
@@ -188,6 +206,15 @@
         {
           "retrievedAt": "2026-10-30T23:14:46+00:00",
           "rawSha256": "9c6c5b9fe3c8c4eab9db67e9599891cff64021ddc1a611619e26bbacc6de0ab1",
+          "versionId": "8b46e65983ce96dd160f7330d7d7f7b3fb2c9850866c133e0ed97f640254ed37",
+          "complete": false,
+          "rawChanged": true,
+          "scheduleChanged": false,
+          "changes": []
+        },
+        {
+          "retrievedAt": "2026-10-31T02:25:24+00:00",
+          "rawSha256": "30d48358b8c4b0c33b00fbb0bcbe6defcb2b9a1bce9a6a40a25752302cd40654",
           "versionId": "8b46e65983ce96dd160f7330d7d7f7b3fb2c9850866c133e0ed97f640254ed37",
           "complete": false,
           "rawChanged": true,
@@ -6024,6 +6051,15 @@
               "source": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal"
             }
           ]
+        },
+        {
+          "retrievedAt": "2026-10-31T02:25:27+00:00",
+          "rawSha256": "29f71fe01733b034c0902687205f1a373a93a24fc5ec2d865afda71159cdac72",
+          "versionId": "6af39872fb2e06df92ed20e0b25fd847ce6c5f9a8dd3034df401db21328054cc",
+          "complete": false,
+          "rawChanged": false,
+          "scheduleChanged": false,
+          "changes": []
         }
       ],
       "prunedVersions": 0
