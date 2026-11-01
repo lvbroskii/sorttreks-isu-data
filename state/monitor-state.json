@@ -11,7 +11,7 @@
     "url": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal"
   },
   "lastProgrammeState": "populated-round-data",
-  "lastCheckAt": "2026-11-01T18:35:34+00:00",
+  "lastCheckAt": "2026-11-01T22:26:41+00:00",
   "firstPublishedProgramme": {
     "sha256": "6b461154157f03e01b89925fe8cfda64ee03cb9c46df64fdd171ce08699b2186",
     "retrievedAt": "2026-10-29T21:01:32+00:00",
@@ -27,15 +27,15 @@
     "observationKind": "empty-to-populated"
   },
   "lastProgrammeVersion": {
-    "versionId": "91d2fc72068fa3ac1456d4fa5a465a8b3fb5a78160be8572b2dcbaf2db7ce5aa",
+    "versionId": "1a03652b7d5e90122a696879883ff0f4f119c8a01f59d4186a8150d024d48585",
     "eventId": "2026-27-wt2",
     "kind": "online",
     "url": "https://front-api.isu.org/events/getschedule/isu-short-track-world-tour-2-montreal",
     "timeZone": "America/Toronto",
-    "rawSha256": "efd89075976ba507464ca31744934108ea84fa9d01d5593ea8445031e7c2c009",
-    "retrievedAt": "2026-11-01T18:35:38+00:00",
+    "rawSha256": "beec8382c71df89ecf153a72f548d1655e701171b63f2720f4de82ea77d2023c",
+    "retrievedAt": "2026-11-01T22:26:45+00:00",
     "revision": {},
-    "semanticHash": "4d9ac4642abfe4c44c8e896fa8e0b26e6dc64f6e1575b6d148aedd3636f2ba85",
+    "semanticHash": "4b3c21cb6ff671a23020aa1640101ff98ded2b005c9c9053e80cd813794a3d09",
     "rows": [
       {
         "kind": "race",
@@ -838,8 +838,8 @@
       {
         "kind": "race",
         "date": "2026-11-01",
-        "startsAt": "2026-11-01T14:13:00-05:00",
-        "localTime": "14:13",
+        "startsAt": "2026-11-01T14:14:00-05:00",
+        "localTime": "14:14",
         "gender": "women",
         "distance": 500,
         "discipline": "individual",
@@ -852,13 +852,13 @@
         "timeBasis": "round-start",
         "eventResultId": 16035,
         "eventResultRoundId": 22921,
-        "apiUtcStart": "2026-11-01T19:13:00.000Z"
+        "apiUtcStart": "2026-11-01T19:14:00.000Z"
       },
       {
         "kind": "race",
         "date": "2026-11-01",
-        "startsAt": "2026-11-01T14:26:00-05:00",
-        "localTime": "14:26",
+        "startsAt": "2026-11-01T14:25:00-05:00",
+        "localTime": "14:25",
         "gender": "men",
         "distance": 1000,
         "discipline": "individual",
@@ -871,13 +871,13 @@
         "timeBasis": "round-start",
         "eventResultId": 16039,
         "eventResultRoundId": 22944,
-        "apiUtcStart": "2026-11-01T19:26:00.000Z"
+        "apiUtcStart": "2026-11-01T19:25:00.000Z"
       },
       {
         "kind": "race",
         "date": "2026-11-01",
-        "startsAt": "2026-11-01T14:43:00-05:00",
-        "localTime": "14:43",
+        "startsAt": "2026-11-01T14:41:00-05:00",
+        "localTime": "14:41",
         "gender": "women",
         "distance": 500,
         "discipline": "individual",
@@ -890,7 +890,7 @@
         "timeBasis": "round-start",
         "eventResultId": 16035,
         "eventResultRoundId": 22922,
-        "apiUtcStart": "2026-11-01T19:43:00.000Z"
+        "apiUtcStart": "2026-11-01T19:41:00.000Z"
       },
       {
         "kind": "race",
@@ -933,8 +933,8 @@
       {
         "kind": "race",
         "date": "2026-11-01",
-        "startsAt": "2026-11-01T15:34:00-05:00",
-        "localTime": "15:34",
+        "startsAt": "2026-11-01T15:33:00-05:00",
+        "localTime": "15:33",
         "gender": "men",
         "distance": 1000,
         "discipline": "individual",
@@ -947,7 +947,7 @@
         "timeBasis": "round-start",
         "eventResultId": 16039,
         "eventResultRoundId": 22946,
-        "apiUtcStart": "2026-11-01T20:34:00.000Z"
+        "apiUtcStart": "2026-11-01T20:33:00.000Z"
       },
       {
         "kind": "race",
@@ -971,8 +971,8 @@
       {
         "kind": "race",
         "date": "2026-11-01",
-        "startsAt": "2026-11-01T16:29:00-05:00",
-        "localTime": "16:29",
+        "startsAt": "2026-11-01T16:30:00-05:00",
+        "localTime": "16:30",
         "gender": "women",
         "distance": 1500,
         "discipline": "individual",
@@ -985,7 +985,7 @@
         "timeBasis": "round-start",
         "eventResultId": 16040,
         "eventResultRoundId": 22958,
-        "apiUtcStart": "2026-11-01T21:29:00.000Z"
+        "apiUtcStart": "2026-11-01T21:30:00.000Z"
       },
       {
         "kind": "race",
