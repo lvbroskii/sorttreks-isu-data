@@ -236,6 +236,24 @@
             "online-programme-shell-or-unsupported-format"
           ],
           "identityVerified": true
+        },
+        {
+          "versionId": "8b46e65983ce96dd160f7330d7d7f7b3fb2c9850866c133e0ed97f640254ed37",
+          "eventId": "2026-27-wt2",
+          "kind": "online",
+          "url": "https://www.isu-skating.com/en/short-track/events/eventdetail/isu-short-track-world-tour-2-montreal/?tab=schedule_16272",
+          "timeZone": "America/Toronto",
+          "rawSha256": "507be7f724c4d9a684a260c8e9b5f60dcb8c2772eeff08106692ac6a74ae896a",
+          "retrievedAt": "2026-11-01T06:00:47+00:00",
+          "revision": {},
+          "semanticHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "rows": [],
+          "complete": false,
+          "issues": [
+            "online-completeness-unverified",
+            "online-programme-shell-or-unsupported-format"
+          ],
+          "identityVerified": true
         }
       ],
       "checks": [
@@ -350,6 +368,15 @@
         {
           "retrievedAt": "2026-11-01T02:13:35+00:00",
           "rawSha256": "53c14967f80c5db39b081eef70034e96d81e51e7741f8688284b6ee83f28fa81",
+          "versionId": "8b46e65983ce96dd160f7330d7d7f7b3fb2c9850866c133e0ed97f640254ed37",
+          "complete": false,
+          "rawChanged": true,
+          "scheduleChanged": false,
+          "changes": []
+        },
+        {
+          "retrievedAt": "2026-11-01T06:00:47+00:00",
+          "rawSha256": "507be7f724c4d9a684a260c8e9b5f60dcb8c2772eeff08106692ac6a74ae896a",
           "versionId": "8b46e65983ce96dd160f7330d7d7f7b3fb2c9850866c133e0ed97f640254ed37",
           "complete": false,
           "rawChanged": true,
@@ -9561,6 +9588,15 @@
         },
         {
           "retrievedAt": "2026-11-01T02:13:37+00:00",
+          "rawSha256": "a921c34e6aaeccb23289f82119ba389b4aa2e340a5efe0801a704cadcbb2095f",
+          "versionId": "1aa978da0239d7602d1d3aeaed5f0bd61dfbb4690a5fc4838f9d83665baf3347",
+          "complete": false,
+          "rawChanged": false,
+          "scheduleChanged": false,
+          "changes": []
+        },
+        {
+          "retrievedAt": "2026-11-01T06:00:49+00:00",
           "rawSha256": "a921c34e6aaeccb23289f82119ba389b4aa2e340a5efe0801a704cadcbb2095f",
           "versionId": "1aa978da0239d7602d1d3aeaed5f0bd61dfbb4690a5fc4838f9d83665baf3347",
           "complete": false,
