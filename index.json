@@ -102,6 +102,12 @@
       "file": "checks/2026-11-01/2026-11-01T22-26-41+00-00-fe8b837f7876.json.gz",
       "status": "populated-round-data",
       "firstPublication": false
+    },
+    {
+      "checkedAt": "2026-11-02T01:50:50+00:00",
+      "file": "checks/2026-11-02/2026-11-02T01-50-50+00-00-d9bbd8203cef.json.gz",
+      "status": "populated-round-data",
+      "firstPublication": false
     }
   ]
 }
